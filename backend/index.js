@@ -23,7 +23,7 @@ app.listen(3000, ()=>{
 })
 
 app.use('/api/student',studentRoutes)
-app.use('api/auth',authRoutes)
+app.use('/api/auth',authRoutes)
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
