@@ -1,8 +1,8 @@
-import Student from '../models/student.model';
+import Student from '../models/student.model.js';
 import bcryptjs from 'bcryptjs';
 
 
-export const signup = async(req,res)=>{
+export const signup = async(req,res,next)=>{
    const {name, email, password } = req.body
 
    if (
