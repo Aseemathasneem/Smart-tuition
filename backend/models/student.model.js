@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const studentSchema = new mongoose.Schema({
   name: {
@@ -14,8 +15,41 @@ const studentSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  profilePicture: {
+    type: String,
+    default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+  },
+  is_verified: {
+    type: Boolean,
+    default: false
+  },
+  otp: {
+    type: String,
+  },
+  otp_expires: {
+    type: Date,
+  },
+  otp_resend_count: {
+    type: Number,
+    default: 0,
+  },
+  otp_last_resend: {
+    type: Date,
+  },
+}, { timestamps: true });
+
+// Method to hash OTP before saving
+studentSchema.pre('save', async function (next) {
+  if (this.isModified('otp') && this.otp) {
+    try {
+      this.otp = await bcrypt.hash(this.otp, 10);
+    } catch (err) {
+      return next(err);
+    }
   }
-}, { timestamps: true }); 
+  next();
+});
 
 const Student = mongoose.model('Student', studentSchema);
 export default Student;
