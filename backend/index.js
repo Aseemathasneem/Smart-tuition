@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import studentRoutes from './routes/student.route.js';
 import authRoutes from './routes/auth.route.js';
-import { errorHandler } from './utils/error.js'; // Ensure this path is correct
+
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ mongoose.connect(process.env.MONGO)
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser)
 
 app.use('/api/student', studentRoutes);
 app.use('/api/auth', authRoutes);
