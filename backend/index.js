@@ -2,7 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import studentRoutes from './routes/student.route.js';
-import authRoutes from './routes/auth.route.js';
+import adminRoutes from './routes/admin.route.js';
+import tutorRoutes from './routes/tutor.route.js';
+
 import { errorHandler } from './utils/error.js'; // Ensure this path is correct
 
 dotenv.config();
@@ -20,7 +22,9 @@ const app = express();
 app.use(express.json());
 
 app.use('/api/student', studentRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/tutor', tutorRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

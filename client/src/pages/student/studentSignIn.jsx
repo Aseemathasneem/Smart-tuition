@@ -6,17 +6,22 @@ import {
   signInStart,
   signInSuccess,
   signInFailure,
-} from '../redux/student/studentSlice';
-import OAuth from '../components/OAuth';
+} from '../../redux/student/studentSlice';
+import OAuth from '../../components/OAuth';
+import axios from 'axios';
+import { apiCall } from '../../utils/api';
 
-export default function SignIn() {
+
+export default function StudentSignIn() { // Rename to PascalCase
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
@@ -24,39 +29,31 @@ export default function SignIn() {
     }
     try {
       dispatch(signInStart());
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
-      }
-     
-      if(res.ok) {
-        dispatch(signInSuccess(data));
+      const response = await apiCall('post', '/student/signin', formData);
+      if (response.data.success === false) {
+        dispatch(signInFailure(response.data.message));
+      } else {
+        dispatch(signInSuccess(response.data));
         navigate('/');
       }
     } catch (error) {
-      dispatch(signInFailure(error.message));
+      dispatch(signInFailure(error.response?.data?.message || error.message));
     }
   };
+
   return (
     <div className='min-h-screen mt-20'>
       <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
         {/* left */}
         <div className='flex-1'>
-        <img src='/images/pic1.jpg' alt='pic1' className='h-64 w-64' />
+          <img src='/images/pic1.jpg' alt='pic1' className='h-64 w-64' />
           <p className='text-sm mt-5'>
-          Ready to excel in your studies? Register now and gain access to expert tutors and tailored learning plans!!
+            Ready to excel in your studies? Register now and gain access to expert tutors and tailored learning plans!!
           </p>
         </div>
         {/* right */}
-
         <div className='flex-1'>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-            
             <div>
               <Label value='Your email' />
               <TextInput
@@ -89,11 +86,11 @@ export default function SignIn() {
                 'Sign In'
               )}
             </Button>
-            <OAuth />
+            <OAuth apiEndpoint="/api/student/google-signin" />
           </form>
           <div className='flex gap-2 text-sm mt-5'>
             <span>Don't have an account?</span>
-            <Link to='/sign-up' className='text-blue-500'>
+            <Link to='/student/sign-up' className='text-blue-500'>
               Sign Up
             </Link>
           </div>
