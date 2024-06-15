@@ -5,7 +5,8 @@ import {
   tutorResendOtp, 
   tutorVerifyOtp, 
   tutorSignIn, 
-  tutorGoogleSignIn 
+  tutorGoogleSignIn ,
+  signout
 } from '../controllers/tutor.controller.js';
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.post('/resend-otp', tutorResendOtp);
 router.post('/verify-otp', tutorVerifyOtp);
 router.post('/signin', tutorSignIn);
 router.post('/google-signin', tutorGoogleSignIn);
+router.post('/signout', signout);
 
 // Add any other tutor-specific routes here
 

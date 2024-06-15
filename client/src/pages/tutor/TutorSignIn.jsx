@@ -6,21 +6,20 @@ import {
   signInStart,
   signInSuccess,
   signInFailure,
-} from '../../redux/student/studentSlice';
+} from '../../redux/student/studentSlice'; 
 import OAuth from '../../components/OAuth';
-
 import { apiCall } from '../../utils/api';
 
-
-export default function StudentSignIn() { 
+export default function TutorSignIn() {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (currentUser) {
-      navigate('/'); 
+      navigate('/');
     }
   }, [currentUser, navigate]);
 
@@ -35,7 +34,7 @@ export default function StudentSignIn() {
     }
     try {
       dispatch(signInStart());
-      const response = await apiCall('post', '/student/signin', formData);
+      const response = await apiCall('post', '/tutor/signin', formData);
       if (response.data.success === false) {
         dispatch(signInFailure(response.data.message));
       } else {
@@ -54,11 +53,12 @@ export default function StudentSignIn() {
         <div className='flex-1'>
           <img src='/images/pic1.jpg' alt='pic1' className='h-64 w-64' />
           <p className='text-sm mt-5'>
-            Ready to excel in your studies? Register now and gain access to expert tutors and tailored learning plans!!
+            Ready to excel in your teaching? Register now and connect with students to share your expertise!
           </p>
         </div>
         {/* right */}
         <div className='flex-1'>
+        <h2 className='text-2xl font-bold mb-5'>Join as a tutor</h2>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div>
               <Label value='Your email' />
@@ -92,11 +92,11 @@ export default function StudentSignIn() {
                 'Sign In'
               )}
             </Button>
-            <OAuth apiEndpoint="/api/student/google-signin" />
+            <OAuth apiEndpoint="/api/tutor/google-signin" />
           </form>
           <div className='flex gap-2 text-sm mt-5'>
             <span>Don't have an account?</span>
-            <Link to='/student/sign-up' className='text-blue-500'>
+            <Link to='/tutor/sign-up' className='text-blue-500'>
               Sign Up
             </Link>
           </div>

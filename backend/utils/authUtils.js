@@ -36,10 +36,15 @@ async function sendOTPEmail(user, otp) {
 
 // Signup function
 export async function signup(Model, req, res, next) {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
-  if (!name || !email || !password || name === '' || email === '' || password === '') {
+  if (!name || !email || !password || !confirmPassword || name === '' || email === '' || password === '' || confirmPassword === '') {
     return next(errorHandler(400, 'All fields are required'));
+  }
+
+  // Check if passwords match
+  if (password !== confirmPassword) {
+    return next(errorHandler(400, 'Passwords do not match'));
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10);

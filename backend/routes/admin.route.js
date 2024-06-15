@@ -1,6 +1,7 @@
 
 import express from 'express';
 import { 
+  signout,
   adminSignUp, 
   adminResendOtp, 
   adminVerifyOtp, 
@@ -16,7 +17,8 @@ router.post('/resend-otp', adminResendOtp);
 router.post('/verify-otp', adminVerifyOtp);
 router.post('/signin', adminSignIn);
 router.post('/google-signin', adminGoogleSignIn);
+router.post('/signout', signout);
 
-// Add any other admin-specific routes here
+
 
 export default router;

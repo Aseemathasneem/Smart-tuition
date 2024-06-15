@@ -9,11 +9,11 @@ import PrivateRoute from '../components/PrivateRoute'; // Make sure the path is 
 
 const StudentRoutes = () => (
   <Routes>
-    <Route path="/student/sign-in" element={<StudentSignIn />} />
-    <Route path="/student/sign-up" element={<StudentSignUp />} />
-    <Route path="/student/otp-verification" element={<StudentOtpVerification />} />
+    <Route path="sign-in" element={<StudentSignIn />}noCache />
+    <Route path="sign-up" element={<StudentSignUp />} />
+    <Route path="otp-verification" element={<StudentOtpVerification />} />
     <Route element={<PrivateRoute />}>
-      <Route path="/student/dashboard" element={<StudentDashboard />} />
+      <Route path="dashboard" element={<StudentDashboard />} />
       {/* <Route path="/student/profile" element={<StudentProfile />} /> */}
     </Route>
   </Routes>

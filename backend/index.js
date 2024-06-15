@@ -1,13 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';  // Import cookie-parser
 import studentRoutes from './routes/student.route.js';
-
 import adminRoutes from './routes/admin.route.js';
 import tutorRoutes from './routes/tutor.route.js';
-
 import { errorHandler } from './utils/error.js'; 
 
+dotenv.config();
 
 mongoose.connect(process.env.MONGO)
   .then(() => {
@@ -20,12 +20,11 @@ mongoose.connect(process.env.MONGO)
 const app = express();
 
 app.use(express.json());
-app.use(cookieParser)
+app.use(cookieParser());  // Use cookie-parser
 
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tutor', tutorRoutes);
-
 
 // Error handling middleware
 app.use((err, req, res, next) => {
