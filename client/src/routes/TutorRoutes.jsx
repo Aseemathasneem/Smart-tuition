@@ -3,22 +3,24 @@ import { Routes, Route } from 'react-router-dom';
 import TutorDashboard from '../pages/tutor/TutorDashboard';
 import TutorSignIn from '../pages/tutor/TutorSignIn';
 import TutorSignUp from '../pages/tutor/TutorSignUp';
-import TutorProfile from '../pages/tutor/tutorProfile';
+
 
 import TutorOtpVerification from '../pages/tutor/TutorOtpVerification';
-import PrivateRoute from '../components/PrivateRoute'; 
+import PrivateRoutes from '../pages/tutor/TutorPrivateRoute';
+import TutorHome from '../pages/tutor/TutorHome';
+import TutorSession from '../pages/tutor/TutorSession'
 
 const TutorRoutes = () => (
   <Routes>
-    <Route path="sign-in" element={< TutorSignIn/>} />
-    <Route path="sign-up" element={<TutorSignUp />} />
-    <Route path="otp-verification" element={<TutorOtpVerification />} />
-    <Route element={<PrivateRoute />}>
-      <Route path="dashboard" element={< TutorDashboard/>} />
-      <Route path="profile" element={< TutorProfile/>} />
-      
-    </Route>
-  </Routes>
+  <Route path="sign-in" element={<TutorSignIn />} />
+  <Route path="sign-up" element={<TutorSignUp />} />
+  <Route path="otp-verification" element={<TutorOtpVerification />} />
+  <Route path="home" element={<TutorHome />} />
+  <Route element={<PrivateRoutes />}>
+      <Route path="dashboard" element={<TutorDashboard />} />
+      <Route path="session/:slotId" element={<TutorSession />} />
+  </Route>
+</Routes>
 );
 
 export default TutorRoutes;

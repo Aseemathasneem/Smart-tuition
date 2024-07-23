@@ -3,23 +3,32 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from '../../redux/student/studentSlice'; 
+  authStart,
+  authSuccess,
+  authFailure,
+  resetError
+} from '../../redux/tutor/tutorSlice'; // Adjust the import path if needed
 import OAuth from '../../components/OAuth';
-import { apiCall } from '../../utils/api';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function TutorSignIn() {
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error: errorMessage } = useSelector((state) => state.tutor);
   const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(resetError()); // Clear error on mount
+
+    return () => {
+      dispatch(resetError()); // Clear error on unmount
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     if (currentUser) {
-      navigate('/');
+      navigate('/tutor/home');
     }
   }, [currentUser, navigate]);
 
@@ -30,19 +39,23 @@ export default function TutorSignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure('Please fill all the fields'));
+      return dispatch(authFailure('Please fill all the fields'));
     }
     try {
-      dispatch(signInStart());
-      const response = await apiCall('post', '/tutor/signin', formData);
+      dispatch(authStart());
+      const response = await apiCall('post', endpoints.TUTOR_SIGN_IN, formData);
       if (response.data.success === false) {
-        dispatch(signInFailure(response.data.message));
+        dispatch(authFailure(response.data.message));
       } else {
-        dispatch(signInSuccess(response.data));
-        navigate('/');
+        dispatch(authSuccess({
+          token: response.data.accessToken,
+          role: response.data.role,
+          user: response.data,
+        }));
+        navigate('/tutor/home');
       }
     } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || error.message));
+      dispatch(authFailure(error.response?.data?.message || error.message));
     }
   };
 
@@ -58,7 +71,7 @@ export default function TutorSignIn() {
         </div>
         {/* right */}
         <div className='flex-1'>
-        <h2 className='text-2xl font-bold mb-5'>Join as a tutor</h2>
+          <h2 className='text-2xl font-bold mb-5'>Join as a tutor</h2>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div>
               <Label value='Your email' />

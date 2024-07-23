@@ -1,20 +1,36 @@
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import OAuth from '../../components/OAuth';
 import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from '../../redux/student/studentSlice'; 
-import { apiCall } from '../../utils/api';
+  authStart,
+  authSuccess,
+  authFailure,
+  resetError
+} from '../../redux/admin/adminSlice'; // Adjust the import path if needed
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function AdminSignIn() {
-  const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage } = useSelector((state) => state.user); 
+  const { loading, error: errorMessage, currentUser } = useSelector((state) => state.admin);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+
+  useEffect(() => {
+    dispatch(resetError()); // Clear error on mount
+
+    return () => {
+      dispatch(resetError()); // Clear error on unmount
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'admin') {
+      navigate('/admin/dashboard'); // Navigate to admin dashboard if already signed in
+    }
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -23,35 +39,42 @@ export default function AdminSignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure('Please fill all the fields'));
+      return dispatch(authFailure('Please fill all the fields'));
     }
     try {
-      dispatch(signInStart());
-      const response = await apiCall('post', '/admin/signin', formData);
+      dispatch(authStart());
+      const response = await apiCall('post', endpoints.ADMIN_SIGN_IN, formData);
+      
       if (response.data.success === false) {
-        dispatch(signInFailure(response.data.message));
+        dispatch(authFailure(response.data.message));
       } else {
-        dispatch(signInSuccess(response.data));
-        navigate('/admin/dashboard'); 
+       
+        dispatch(authSuccess({
+          token: response.data.accessToken,
+          
+          role:  response.data.role,
+          user: response.data,
+        }));
+        navigate('/admin/dashboard'); // Navigate to admin dashboard on success
       }
     } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || error.message));
+      dispatch(authFailure(error.response?.data?.message || error.message));
     }
   };
 
   return (
     <div className='min-h-screen mt-20'>
       <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
-        {/* left */}
+        {/* Left */}
         <div className='flex-1'>
           <img src='/images/pic1.jpg' alt='pic1' className='h-64 w-64' />
           <p className='text-sm mt-5'>
             Ready to manage the platform? Sign in now to access the admin dashboard and start managing users, content, and more!
           </p>
         </div>
-        {/* right */}
+        {/* Right */}
         <div className='flex-1'>
-        <h2 className='text-2xl font-bold mb-5'>Admin Sign in</h2>
+          <h2 className='text-2xl font-bold mb-5'>Admin Sign in</h2>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div>
               <Label value='Your email' />
@@ -59,6 +82,7 @@ export default function AdminSignIn() {
                 type='email'
                 placeholder='Email'
                 id='email'
+                value={formData.email}
                 onChange={handleChange}
               />
             </div>
@@ -68,6 +92,7 @@ export default function AdminSignIn() {
                 type='password'
                 placeholder='*********'
                 id='password'
+                value={formData.password}
                 onChange={handleChange}
               />
             </div>

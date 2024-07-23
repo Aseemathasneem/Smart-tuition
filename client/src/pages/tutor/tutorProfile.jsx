@@ -1,164 +1,81 @@
-import { Button, Label, TextInput, Textarea, FileInput, Select, Checkbox, Card } from 'flowbite-react';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { apiCall } from '../../utils/api';
+import React, { useState, useEffect } from 'react';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
+import { Card } from 'flowbite-react';
 
-export default function TutorProfile() {
-  const { currentUser } = useSelector((state) => state.user);
-  const [formData, setFormData] = useState({
-    qualification: '',
-    classes: '',
-    subjects: '',
-    hourlyRate: '',
-    availableTime: '',
-    availableDays: [],
-    certificate: null,
-    bio: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
-  };
+const TutorProfile = () => {
+  const [tutor, setTutor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, certificate: e.target.files[0] });
-  };
-
-  const handleCheckboxChange = (e) => {
-    const { id, checked } = e.target;
-    setFormData((prevData) => {
-      const availableDays = checked
-        ? [...prevData.availableDays, id]
-        : prevData.availableDays.filter((day) => day !== id);
-      return { ...prevData, availableDays };
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const {
-      qualification,
-      classes,
-      subjects,
-      hourlyRate,
-      availableTime,
-      availableDays,
-      certificate,
-      bio
-    } = formData;
-
-    if (
-      !qualification ||
-      !classes ||
-      !subjects ||
-      !hourlyRate ||
-      !availableTime ||
-      availableDays.length === 0 ||
-      !certificate ||
-      !bio
-    ) {
-      setErrorMessage('Please fill all the fields.');
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    const formDataObj = new FormData();
-    Object.keys(formData).forEach((key) => {
-      formDataObj.append(key, formData[key]);
-    });
-
-    try {
-      const response = await apiCall('post', '/tutor/profile', formDataObj);
-      setLoading(false);
-
-      if (response.data.success === false) {
-        setErrorMessage(response.data.message);
-      } else {
-        setSuccessMessage('Profile submitted for approval.');
+  useEffect(() => {
+    const fetchTutorProfile = async () => {
+      try {
+        const response = await apiCall('get', endpoints.TUTOR_GET_PROFILE);
+        setTutor(response.data); // Assuming data contains the tutor profile object
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tutor profile:', error);
+        setError(error.message || 'Failed to fetch tutor profile');
+        setLoading(false);
       }
-    } catch (error) {
-      setErrorMessage(error.response?.data?.message || error.message);
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchTutorProfile();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
-    <div className="min-h-screen mt-20">
-      <div className="max-w-4xl mx-auto p-4">
-        <Card>
-          <div className="flex items-center space-x-4 mb-6">
-            <img src={currentUser.profilePicture} alt="Profile" className="w-16 h-16 rounded-full" />
-            <div>
-              <h2 className="text-xl font-semibold">{currentUser.name}</h2>
-              <p>{currentUser.email}</p>
+    <div className="flex justify-center items-center min-h-screen p-3 w-full">
+      <Card className="max-w-3xl w-full">
+        {tutor && (
+          <>
+            <div className="flex flex-col items-center">
+              <img src={tutor.profilePicture} alt="Profile" className="h-24 w-24 rounded-full mb-4" />
+              
+              <h2 className="text-2xl font-bold mt-2">{tutor.name}</h2>
+              <p className="text-sm">{tutor.email}</p>
+              <p className="text-sm font-bold">{`Status: ${tutor.status}`}</p>
+              
             </div>
-          </div>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <div>
-              <Label htmlFor="qualification" value="Qualification" />
-              <TextInput id="qualification" type="text" onChange={handleChange} required />
+            <div className="mt-6 w-full">
+            <p className="text-gray-500  text-center">{tutor.bio}</p>
+              <h3 className="text-xl font-semibold">Qualification</h3>
+              <p>{tutor.qualification}</p>
             </div>
-            <div>
-              <Label htmlFor="classes" value="Classes for Tutoring" />
-              <TextInput id="classes" type="text" onChange={handleChange} required />
+            <div className="mt-4 w-full">
+              <h3 className="text-xl font-semibold">Classes for Tutoring</h3>
+              <p>{tutor.classes.join(', ')}</p>
             </div>
-            <div>
-              <Label htmlFor="subjects" value="Subjects for Tutoring" />
-              <TextInput id="subjects" type="text" onChange={handleChange} required />
+            <div className="mt-4 w-full">
+              <h3 className="text-xl font-semibold">Subjects for Tutoring</h3>
+              <p>{tutor.subjects.join(', ')}</p>
             </div>
-            <div>
-              <Label htmlFor="hourlyRate" value="Hourly Rate" />
-              <TextInput id="hourlyRate" type="number" onChange={handleChange} required />
+            <div className="mt-4 w-full">
+              <h3 className="text-xl font-semibold">Hourly Rate</h3>
+              <p>{tutor.hourlyRate}</p>
             </div>
-            <div>
-              <Label htmlFor="availableTime" value="Available Time" />
-              <TextInput id="availableTime" type="text" onChange={handleChange} required />
+            <div className="mt-4 w-full">
+              <h3 className="text-xl font-semibold">Available Time</h3>
+              <p>{tutor.availableTime}</p>
             </div>
-            <div>
-              <Label value="Available Days" />
-              <div className="flex flex-wrap gap-2">
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                  <Checkbox
-                    key={day}
-                    id={day}
-                    name="availableDays"
-                    label={day}
-                    onChange={handleCheckboxChange}
-                  />
-                ))}
-              </div>
+            <div className="mt-4 w-full">
+              <h3 className="text-xl font-semibold">Available Days</h3>
+              <p>{tutor.availableDays.join(', ')}</p>
             </div>
-            <div>
-              <Label htmlFor="certificate" value="Upload Qualification Certificate" />
-              <FileInput id="certificate" onChange={handleFileChange} required />
-            </div>
-            <div>
-              <Label htmlFor="bio" value="BIO" />
-              <Textarea id="bio" rows={4} onChange={handleChange} required />
-            </div>
-            <Button gradientDuoTone="purpleToBlue" type="submit" disabled={loading}>
-              {loading ? 'Submitting...' : 'Send for Approval'}
-            </Button>
-          </form>
-          {errorMessage && (
-            <Alert color="failure" className="mt-5">
-              {errorMessage}
-            </Alert>
-          )}
-          {successMessage && (
-            <Alert color="success" className="mt-5">
-              {successMessage}
-            </Alert>
-          )}
-        </Card>
-      </div>
+          </>
+        )}
+      </Card>
     </div>
   );
-}
+};
+
+export default TutorProfile;

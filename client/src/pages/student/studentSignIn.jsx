@@ -2,27 +2,26 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from '../../redux/student/studentSlice';
+import { authStart, authSuccess, authFailure, resetError } from '../../redux/student/studentSlice';
 import OAuth from '../../components/OAuth';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
-import { apiCall } from '../../utils/api';
-
-
-export default function StudentSignIn() { 
+export default function StudentSignIn() {
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error: errorMessage } = useSelector((state) => state.student);
   const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
   useEffect(() => {
-    if (currentUser) {
-      navigate('/'); 
-    }
-  }, [currentUser, navigate]);
+    dispatch(resetError()); // Clear error on mount
+
+    return () => {
+      dispatch(resetError()); // Clear error on unmount
+    };
+  }, [dispatch]);
+
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -31,19 +30,26 @@ export default function StudentSignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure('Please fill all the fields'));
+      return dispatch(authFailure('Please fill all the fields'));
     }
     try {
-      dispatch(signInStart());
-      const response = await apiCall('post', '/student/signin', formData);
+      dispatch(authStart());
+      const response = await apiCall('post', endpoints.STUDENT_SIGN_IN, formData);
+      
       if (response.data.success === false) {
-        dispatch(signInFailure(response.data.message));
+        dispatch(authFailure(response.data.message));
       } else {
-        dispatch(signInSuccess(response.data));
-        navigate('/');
+       
+        dispatch(authSuccess({
+          token: response.data.accessToken,
+          
+          role:  response.data.role,
+          user: response.data,
+        }));
+        navigate('/student/home');
       }
     } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || error.message));
+      dispatch(authFailure(error.response?.data?.message || error.message));
     }
   };
 

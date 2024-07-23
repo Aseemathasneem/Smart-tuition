@@ -2,7 +2,8 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../../components/OAuth';
-import { apiCall } from '../../utils/api';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function AdminSignUp() {
     const [formData, setFormData] = useState({});
@@ -24,13 +25,13 @@ export default function AdminSignUp() {
             setLoading(true);
             setErrorMessage(null);
 
-            const response = await apiCall('post', '/admin/signup', formData);
+            const response = await apiCall('post', endpoints.ADMIN_SIGN_UP, formData);
             setLoading(false);
 
             if (response.data.success === false) {
                 setErrorMessage(response.data.message);
             } else {
-                navigate('/admin/otp-verification', { state: { email: formData.email } });
+                navigate(endpoints.ADMIN_GET_OTP_VERIFICATION, { state: { email: formData.email } });
             }
         } catch (error) {
             setErrorMessage(error.response?.data?.message || error.message || 'An error occurred');

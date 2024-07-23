@@ -1,26 +1,23 @@
-import { configureStore ,combineReducers} from '@reduxjs/toolkit'
-import  userReducer from './student/studentSlice'
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import studentReducer from './student/studentSlice';
+import tutorReducer from './tutor/tutorSlice';
+import adminReducer from './admin/adminSlice';
 import themeReducer from './theme/themeSlice';
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import subjectReducer from './subjects/subjectsSlice';
 
+
+// Combine reducers without persistence
 const rootReducer = combineReducers({
-  user: userReducer,
+  student: studentReducer,
+  tutor: tutorReducer,
+  admin: adminReducer,
   theme: themeReducer,
-  
+  subjects: subjectReducer,
+ 
 });
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  version: 1,
-};
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }),
 });
-
-export const persistor = persistStore(store);

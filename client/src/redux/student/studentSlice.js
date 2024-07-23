@@ -1,73 +1,83 @@
-import { createSlice } from '@reduxjs/toolkit';
+// src/redux/slices/authSlice.js
 
-const initialState = {
-  currentUser: null,
-  error: null,
-  loading: false,
-};
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
-const userSlice = createSlice({
-  name: 'user',
-  initialState,
+export const fetchStudentData = createAsyncThunk('auth/fetchStudentData', async (token) => {
+  
+  const response = await apiCall('get', endpoints.FETCH_STUDENTS_DATA, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+ 
+  return response.data;
+});
+
+const studentSlice = createSlice({
+  name: 'student',
+  initialState: {
+    token: null,
+    role: null,
+    currentUser: null,
+    loading: false,
+    error: null,
+  },
   reducers: {
-    signInStart: (state) => {
-      state.loading = true;
-      state.error = null;
+    setAuth(state, action) {
+      state.token = action.payload.token;
+      state.role = action.payload.role;
+      state.currentUser = action.payload.user;
     },
-    signInSuccess: (state, action) => {
-      state.currentUser = action.payload;
-      state.loading = false;
-      state.error = null;
-    },
-    signInFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    updateStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    updateSuccess: (state, action) => {
-      state.currentUser = action.payload;
-      state.loading = false;
-      state.error = null;
-    },
-    updateFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    deleteUserStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    deleteUserSuccess: (state) => {
+    clearAuth(state) {
+      state.token = null;
+      state.role = null;
       state.currentUser = null;
-      state.loading = false;
+    },
+    authStart(state) {
+      state.loading = true;
       state.error = null;
     },
-    deleteUserFailure: (state, action) => {
+    authSuccess(state, action) {
+      
+      state.loading = false;
+      state.token = action.payload.token;
+      state.role = action.payload.role;
+      state.currentUser = action.payload.user;
+      localStorage.setItem('st_token', action.payload.token);
+    },
+    authFailure(state, action) {
       state.loading = false;
       state.error = action.payload;
     },
-    signoutSuccess: (state) => {
-      state.currentUser = null;
+    resetError(state) {
       state.error = null;
-      state.loading = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchStudentData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentData.fulfilled, (state, action) => {
+        state.currentUser = action.payload;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fetchStudentData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   },
 });
 
 export const {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-  updateStart,
-  updateSuccess,
-  updateFailure,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure,
-  signoutSuccess,
-} = userSlice.actions;
+  setAuth,
+  clearAuth,
+  authStart,
+  authSuccess,
+  authFailure,
+  resetError,
+} = studentSlice.actions;
 
-export default userSlice.reducer;
+export default studentSlice.reducer;

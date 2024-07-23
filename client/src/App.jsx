@@ -1,23 +1,23 @@
+// App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/common/Home';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import StudentLayout from './layouts/StudentLayout';
+import TutorLayout from './layouts/TutorLayout';
+import AdminRoutes from './routes/AdminRoutes';
 import StudentRoutes from './routes/StudentRoutes';
 import TutorRoutes from './routes/TutorRoutes';
-import AdminRoutes from './routes/AdminRoutes';
+import CommonLayout from './layouts/CommonLayout';
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/student/*" element={<StudentRoutes />} />
-        <Route path="/tutor/*" element={<TutorRoutes />} />
+        <Route path="/" element={<CommonLayout><Home /></CommonLayout>} />
+        <Route path="/student/*" element={<StudentLayout><StudentRoutes /> </StudentLayout>}></Route>
+        <Route path="/tutor/*" element={<TutorLayout><TutorRoutes /></TutorLayout> }></Route>
         <Route path="/admin/*" element={<AdminRoutes />} />
       </Routes>
-      <Footer />
     </BrowserRouter>
   );
 }

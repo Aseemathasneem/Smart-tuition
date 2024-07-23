@@ -2,7 +2,8 @@ import { Alert, Button, Label, Spinner, TextInput, Toast } from 'flowbite-react'
 import { HiInformationCircle } from 'react-icons/hi';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { apiCall } from '../../utils/api';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function TutorOtpVerification() {
     const [otp, setOtp] = useState('');
@@ -10,9 +11,23 @@ export default function TutorOtpVerification() {
     const [successMessage, setSuccessMessage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [resendTimeout, setResendTimeout] = useState(null);
+    const [timeLeft, setTimeLeft] = useState(0);
+
     const location = useLocation();
     const navigate = useNavigate();
     const email = location.state?.email;
+    useEffect(() => {
+      if (timeLeft > 0) {
+        const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+        return () => clearTimeout(timerId);
+      }
+    }, [timeLeft]);
+    
+    const startCountdown = (duration) => {
+      setTimeLeft(duration);
+    };
+    
   
     useEffect(() => {
       setShowToast(true);
@@ -33,7 +48,7 @@ export default function TutorOtpVerification() {
       try {
         setLoading(true);
         setErrorMessage(null);
-        const response = await apiCall('post', '/tutor/verify-otp', { email, otp }); // Assuming the API endpoint for tutor OTP verification is '/tutor/verify-otp'
+        const response = await apiCall('post', endpoints.TUTOR_POST_OTP_VERIFICATION, { email, otp }); 
         if (response.data.success === false) {
           setErrorMessage(response.data.message);
           setLoading(false);
@@ -41,7 +56,7 @@ export default function TutorOtpVerification() {
         }
         setLoading(false);
         if (response.data.success) {
-          navigate('/tutor/sign-in'); // Assuming the redirect path after successful verification for tutor is '/tutor/sign-in'
+          navigate('/tutor/sign-in'); 
         }
       } catch (error) {
         if (error.response && error.response.data) {
@@ -58,31 +73,30 @@ export default function TutorOtpVerification() {
     const handleResendOtp = async () => {
       try {
         setLoading(true);
-        setErrorMessage(null); // Clear any previous error messages
-        setSuccessMessage(null); // Clear any previous success messages
-  
-        const data = await apiCall('post', '/tutor/resend-otp', { email }); // Assuming the API endpoint for resending OTP for tutor is '/tutor/resend-otp'
+        setErrorMessage(null);
+        setSuccessMessage(null);
+    
+        const data = await apiCall('post', endpoints.TUTOR_RESEND_OTP, { email });
         setLoading(false);
-  
+    
         if (data.success === false) {
-          setSuccessMessage(null); // Clear success message if there's an error
+          setSuccessMessage(null);
           setErrorMessage(data.message);
         } else {
-          setErrorMessage(null); // Clear error message if successful
+          setErrorMessage(null);
           setSuccessMessage('OTP has been resent successfully. Please check your email.');
-        } 
+          startCountdown(120); // Start countdown from 10 minutes (600 seconds)
+        }
       } catch (error) {
         if (error.response && error.response.data) {
-          // Server provided error message
           setErrorMessage(error.response.data.message);
         } else {
-          // Network or other error
           setErrorMessage(error.message);
         }
         setLoading(false);
       }
     };
-  
+    
     return (
       <div className='min-h-screen mt-20'>
         {showToast && (
@@ -133,7 +147,7 @@ export default function TutorOtpVerification() {
                   gradientDuoTone='purpleToBlue'
                   outline
                   onClick={handleResendOtp}
-                  disabled={loading}
+                  disabled={loading || timeLeft > 0}
                 >
                   {loading ? (
                     <>
@@ -152,12 +166,19 @@ export default function TutorOtpVerification() {
               </Alert>
             )}
             {successMessage && (
-            <Alert className='mt-5' color='success'>
-              {successMessage}
-            </Alert>
-          )}
+              <Alert className='mt-5' color='success'>
+                {successMessage}
+              </Alert>
+            )}
+            {timeLeft > 0 && (
+              <p className='mt-5 text-sm text-gray-600'>
+                OTP resends in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+              </p>
+            )}
           </div>
         </div>
       </div>
     );
+    
+    
 }

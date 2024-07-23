@@ -3,18 +3,18 @@ import { AiFillGoogleCircle } from 'react-icons/ai';
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { app } from '../firebase';
 import { useDispatch } from 'react-redux';
-import { signInSuccess } from '../redux/student/studentSlice';
+import { authSuccess } from '../redux/student/studentSlice'; // Adjust the import path if needed
 import { useNavigate } from 'react-router-dom';
 
 export default function OAuth({ apiEndpoint }) {
-    const auth = getAuth(app)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const handleGoogleClick = async () =>{
-        const provider = new GoogleAuthProvider()
-        provider.setCustomParameters({ prompt: 'select_account' })
+    const auth = getAuth(app);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const handleGoogleClick = async () => {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
         try {
-            const resultsFromGoogle = await signInWithPopup(auth, provider)
+            const resultsFromGoogle = await signInWithPopup(auth, provider);
             const res = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -23,20 +23,26 @@ export default function OAuth({ apiEndpoint }) {
                     email: resultsFromGoogle.user.email,
                     googlePhotoUrl: resultsFromGoogle.user.photoURL,
                 }),
-                })
-            const data = await res.json()
-            if (res.ok){
-                dispatch(signInSuccess(data))
-                navigate('/')
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const { accessToken, role } = data;
+                
+                dispatch(authSuccess({
+                    token: accessToken,
+                    role: role,
+                    user: data,
+                }));
+                navigate('/student/home');
             }
         } catch (error) {
             console.log(error);
         }
-    } 
-  return (
-    <Button type='button' gradientDuoTone='pinkToOrange' outline onClick={handleGoogleClick}>
-        <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
-        Continue with Google
-    </Button>
-  )
+    };
+    return (
+        <Button type='button' gradientDuoTone='pinkToOrange' outline onClick={handleGoogleClick}>
+            <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
+            Continue with Google
+        </Button>
+    );
 }

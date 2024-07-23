@@ -1,48 +1,55 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import OAuth from "../../components/OAuth";
-import { apiCall } from "../../utils/api";
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function TutorSignUp() {
-  const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Name is required"),
+      email: Yup.string().email("Invalid email address").required("Email is required"),
+      password: Yup.string().required("Password is required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref("password"), null], "Passwords must match")
+        .required("Confirm Password is required"),
+    }),
+    onSubmit: async (values) => {
+      try {
+        setLoading(true);
+        setErrorMessage(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      return setErrorMessage("Please fill out all fields.");
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return setErrorMessage('Passwords do not match !');
-  }
-    try {
-      setLoading(true);
-      setErrorMessage(null);
+        const response = await apiCall("post", endpoints.TUTOR_SIGN_UP, values);
+        setLoading(false);
 
-      const response = await apiCall("post", "/tutor/signup", formData); // Assuming the API endpoint for tutor signup is '/tutor/signup'
-      setLoading(false);
-
-      if (response.data.success === false) {
-        setErrorMessage(response.data.message);
-      } else {
-        navigate("/tutor/otp-verification", {
-          state: { email: formData.email },
-        }); // Assuming the verification page for tutor is '/tutor/otp-verification'
+        if (response.data.success === false) {
+          setErrorMessage(response.data.message);
+        } else {
+          navigate(endpoints.TUTOR_GET_OTP_VERIFICATION, {
+            state: { email: values.email },
+          });
+        }
+      } catch (error) {
+        setErrorMessage(
+          error.response?.data?.message || error.message || "An error occurred"
+        );
+        setLoading(false);
       }
-    } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message || error.message || "An error occurred"
-      );
-      setLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className="min-h-screen mt-20">
@@ -58,15 +65,18 @@ export default function TutorSignUp() {
         {/* right */}
         <div className="flex-1">
           <h2 className="text-2xl font-bold mb-5">Register as a tutor</h2>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
             <div>
               <Label value="Your name" />
               <TextInput
                 type="text"
                 placeholder="Name"
                 id="name"
-                onChange={handleChange}
+                {...formik.getFieldProps("name")}
               />
+              {formik.touched.name && formik.errors.name ? (
+                <div className="text-red-500 text-sm">{formik.errors.name}</div>
+              ) : null}
             </div>
             <div>
               <Label value="Your email" />
@@ -74,8 +84,11 @@ export default function TutorSignUp() {
                 type="email"
                 placeholder="Email"
                 id="email"
-                onChange={handleChange}
+                {...formik.getFieldProps("email")}
               />
+              {formik.touched.email && formik.errors.email ? (
+                <div className="text-red-500 text-sm">{formik.errors.email}</div>
+              ) : null}
             </div>
             <div>
               <Label value="Your password" />
@@ -83,8 +96,11 @@ export default function TutorSignUp() {
                 type="password"
                 placeholder="Password"
                 id="password"
-                onChange={handleChange}
+                {...formik.getFieldProps("password")}
               />
+              {formik.touched.password && formik.errors.password ? (
+                <div className="text-red-500 text-sm">{formik.errors.password}</div>
+              ) : null}
             </div>
             <div>
               <Label value="Confirm your password" />
@@ -92,8 +108,11 @@ export default function TutorSignUp() {
                 type="password"
                 placeholder="Confirm Password"
                 id="confirmPassword"
-                onChange={handleChange}
+                {...formik.getFieldProps("confirmPassword")}
               />
+              {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+                <div className="text-red-500 text-sm">{formik.errors.confirmPassword}</div>
+              ) : null}
             </div>
             <Button
               gradientDuoTone="purpleToBlue"

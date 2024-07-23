@@ -2,8 +2,8 @@ import { Alert, Button, Label, Spinner, TextInput, Toast } from 'flowbite-react'
 import { HiInformationCircle } from 'react-icons/hi';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { apiCall } from '../../utils/api';
-
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 export default function AdminOtpVerification() {
     const [otp, setOtp] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
@@ -33,7 +33,7 @@ export default function AdminOtpVerification() {
       try {
         setLoading(true);
         setErrorMessage(null);
-        const response = await apiCall('post', '/admin/verify-otp', { email, otp });
+        const response = await apiCall('post', endpoints.ADMIN_POST_OTP_VERIFICATION, { email, otp });
         if (response.data.success === false) {
           setErrorMessage(response.data.message);
           setLoading(false);
