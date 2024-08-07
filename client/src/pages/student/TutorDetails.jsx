@@ -6,11 +6,15 @@ import endpoints from "../../api/endpoints";
 import { Spinner, Alert, Button, Modal } from "flowbite-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SlotTable from "../../components/SlotTable";  
+import ReviewCard from "../../components/ReviewCard";  // Import the ReviewCard component
 
 const TutorDetails = () => {
   const navigate = useNavigate();
   const { tutorId } = useParams();
   const [tutor, setTutor] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [reviews, setReviews] = useState([]); // Add state for reviews
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false); 
@@ -20,11 +24,9 @@ const TutorDetails = () => {
   useEffect(() => {
     const fetchTutorDetails = async () => {
       try {
-        const response = await apiCall(
-          "get",
-          endpoints.GET_TUTOR_DETAILS(tutorId)
-        );
-        setTutor(response.data);
+        const response = await apiCall("get", endpoints.GET_TUTOR_DETAILS(tutorId));
+        setTutor(response.data.tutor);
+        setSlots(response.data.slots);
       } catch (err) {
         setError(err.response ? err.response.data.message : "Server error");
       } finally {
@@ -35,6 +37,20 @@ const TutorDetails = () => {
     fetchTutorDetails();
   }, [tutorId]);
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await apiCall("get", endpoints.GET_TUTOR_REVIEWS(tutorId));
+        console.log("Reviews response:", response.data); // Log the response
+        setReviews(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        toast.error("Failed to fetch reviews");
+      }
+    };
+
+    fetchReviews();
+  }, [tutorId]);
+ 
   const handleBookSlot = async (slot) => {
     try {
       const response = await apiCall('post', endpoints.BOOK_SLOT, {
@@ -45,17 +61,18 @@ const TutorDetails = () => {
         endTime: slot.endTime,
       });
       
-      setSessionDetails({ // Set the session details
-        tutorId, // Add tutorId to session details
-        studentId: currentUser._id, // Add studentId to session details
+      setSessionDetails({
+        tutorId, 
+        studentId: currentUser._id, 
         tutorName: tutor.name,
         date: new Date(slot.date).toLocaleDateString(),
         startTime: slot.startTime,
         endTime: slot.endTime,
         subjects: tutor.subjects.join(", "),
         amount: tutor.hourlyRate, 
+        slotId: slot._id, 
       });
-      setModalVisible(true); // Open the modal
+      setModalVisible(true);
     } catch (error) {
       toast.error("Failed to book slot");
     }
@@ -71,8 +88,10 @@ const TutorDetails = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  const availableSlots = slots.filter(slot => slot.status === 'available');
+  
   return (
-    <div className="min-h-screen mt-20 flex justify-center items-center">
+    <div className="min-h-screen mt-20 flex justify-center items-start gap-4">
       <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-6 max-w-xl w-full">
         <div className="flex flex-col items-center">
           <img
@@ -100,11 +119,7 @@ const TutorDetails = () => {
           <h3 className="text-xl font-semibold">Hourly Rate</h3>
           <p>{tutor?.hourlyRate}</p>
         </div>
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold">Available Time</h3>
-          <p>{tutor?.availableTime}</p>
-        </div>
-        <div className="mt-4">
+         <div className="mt-4">
           <h3 className="text-xl font-semibold">Available Days</h3>
           <p>{tutor?.availableDays.join(", ")}</p>
         </div>
@@ -112,29 +127,14 @@ const TutorDetails = () => {
           <h3 className="text-xl font-semibold">Bio</h3>
           <p>{tutor?.bio}</p>
         </div>
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold">Available Slots</h3>
-          <ul>
-            {tutor?.availability.map((slot, index) => (
-              <li
-                key={index}
-                className="mb-2 flex justify-between items-center"
-              >
-                <span>{`Date: ${new Date(
-                  slot.date
-                ).toLocaleDateString()}, Start: ${slot.startTime}, End: ${
-                  slot.endTime
-                }`}</span>
-                <Button
-                  onClick={() => handleBookSlot(slot)}
-                  color="blue"
-                  className="ml-4 px-2 py-0.5 rounded-md" 
-                >
-                  Book Slot
-                </Button>
-              </li>
-            ))}
-          </ul>
+        <SlotTable slots={availableSlots} onBookSlot={handleBookSlot} />
+      </div>
+      <div className="w-full max-w-xs">
+        <h3 className="text-xl font-semibold mb-4">Reviews</h3>
+        <div className="space-y-4">
+          {reviews.length > 0 ? reviews.map(review => (
+            <ReviewCard key={review._id} review={review} />
+          )) : <p>No reviews available</p>}
         </div>
       </div>
       <ToastContainer />
@@ -152,7 +152,7 @@ const TutorDetails = () => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button  onClick={handleProceedToPayment}>
+            <Button onClick={handleProceedToPayment}>
               Proceed to Payment
             </Button>
           </Modal.Footer>

@@ -6,6 +6,6 @@ const router = express.Router();
 router.post('/create-checkout-session', createCheckoutSession);
 
 // Route to handle Stripe webhook events
-router.post('/webhook', handleStripeWebhook);
+router.post('/webhook', (req, res) => handleStripeWebhook(req, res, req.io));
 
 export default router;

@@ -9,6 +9,7 @@ import TutorOtpVerification from '../pages/tutor/TutorOtpVerification';
 import PrivateRoutes from '../pages/tutor/TutorPrivateRoute';
 import TutorHome from '../pages/tutor/TutorHome';
 import TutorSession from '../pages/tutor/TutorSession'
+import TutorNotifications from '../pages/tutor/TutorNotifications';
 
 const TutorRoutes = () => (
   <Routes>
@@ -18,7 +19,8 @@ const TutorRoutes = () => (
   <Route path="home" element={<TutorHome />} />
   <Route element={<PrivateRoutes />}>
       <Route path="dashboard" element={<TutorDashboard />} />
-      <Route path="session/:slotId" element={<TutorSession />} />
+      <Route path="session/:sessionId" element={<TutorSession />} />
+      <Route path="notifications" element={<TutorNotifications/>} />
   </Route>
 </Routes>
 );

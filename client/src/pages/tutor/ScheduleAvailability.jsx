@@ -4,28 +4,27 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import TimePicker from 'react-time-picker';
 import 'react-time-picker/dist/TimePicker.css';
-import { Button ,Card} from 'flowbite-react';
+import { Button, Card } from 'flowbite-react';
 import { apiCall } from '../../api/apiCalls';
 import endpoints from '../../api/endpoints';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useToast } from '../../contexts/ToastContext'; // Adjust the import path according to your project structure
 
 const ScheduleAvailability = () => {
+  const showToast = useToast(); // Get the showToast function from the context
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('18:00');
   const [availability, setAvailability] = useState([]);
   
   const currentUser = useSelector(state => state.tutor.currentUser);
-  const tutorId = currentUser?._id; // Retrieve the tutor ID from the current user
-  
+  const tutorId = currentUser?._id;
+
   const handleAddAvailability = () => {
-    // Validation to check if end time is later than start time
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
     
     if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
-      toast.error('End time must be later than start time');
+      showToast('End time must be later than start time', 'error');
       return;
     }
 
@@ -38,25 +37,26 @@ const ScheduleAvailability = () => {
   const handleRemoveAvailability = (index) => {
     const newAvailability = availability.filter((_, i) => i !== index);
     setAvailability(newAvailability);
+    showToast('Slot deleted successfully', 'success'); // Show toast when a slot is removed
   };
 
   const handleSaveAvailability = async () => {
     if (availability.length === 0) {
-      toast.error('Please add at least one availability slot');
+      showToast('Please add at least one availability slot', 'error');
       return;
     }
 
     try {
       const response = await apiCall('post', endpoints.SAVE_AVAILABILITY, {
-         tutorId, // Pass the actual tutor ID
+        tutorId,
         availability,
       });
 
       console.log('Availability saved:', response.data);
-      toast.success('Availability saved successfully');
+      showToast('Availability saved successfully', 'success');
     } catch (error) {
       console.error('Error saving availability:', error);
-      toast.error('Failed to save availability');
+      showToast('Failed to save availability', 'error');
     }
   };
 
@@ -66,16 +66,22 @@ const ScheduleAvailability = () => {
         <div className="overflow-y-auto h-screen p-4">
           <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-6 max-w-xl w-full">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Set Schedule Availability</h2>
-  
+            <div className="mb-4">
+              <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
+                Select the time periods you are available for tutoring on the chosen date. Note: Your availability will be divided into 1-hour slots for each session.
+              </p>
+            </div>
+
             <div className="mb-4">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Select Date:</label>
               <DatePicker
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
+                 dateFormat="dd/MM/yy"
                 className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
               />
             </div>
-  
+
             <div className="mb-4">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Start Time:</label>
               <TimePicker
@@ -86,7 +92,7 @@ const ScheduleAvailability = () => {
                 disableClock={true}
               />
             </div>
-  
+
             <div className="mb-4">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">End Time:</label>
               <TimePicker
@@ -97,17 +103,17 @@ const ScheduleAvailability = () => {
                 disableClock={true}
               />
             </div>
-  
+
             <Button
               onClick={handleAddAvailability}
-              
               className="text-white px-4 py-2 rounded-md"
             >
               Add Availability
             </Button>
-  
+
             <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Your Availabilities:</h3>
+              <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Your Available Time Period:</h3>
+              
               <ul>
                 {availability.map((slot, index) => (
                   <li key={index} className="mb-2 flex justify-between items-center text-gray-900 dark:text-white">
@@ -123,7 +129,7 @@ const ScheduleAvailability = () => {
                 ))}
               </ul>
             </div>
-  
+
             <Button
               onClick={handleSaveAvailability}
               className="text-white px-4 py-2 rounded-md mt-4"
@@ -133,7 +139,6 @@ const ScheduleAvailability = () => {
           </div>
         </div>
       </Card>
-      <ToastContainer />
     </div>
   );
 };

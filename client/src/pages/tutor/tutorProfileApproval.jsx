@@ -42,7 +42,6 @@ export default function TutorProfileApproval() {
         classes: tutorUser.classes || "",
         subjects: tutorUser.subjects || "",
         hourlyRate: tutorUser.hourlyRate || "",
-        availableTime: tutorUser.availableTime || "",
         availableDays: tutorUser.availableDays || [],
         certificate: tutorUser.certificate || null,
         bio: tutorUser.bio || "",
@@ -56,7 +55,6 @@ export default function TutorProfileApproval() {
       classes: "",
       subjects: "",
       hourlyRate: "",
-      availableTime: "",
       availableDays: [],
       certificate: null,
       bio: "",
@@ -66,7 +64,6 @@ export default function TutorProfileApproval() {
       classes: Yup.string().required("Classes for tutoring are required"),
       subjects: Yup.string().required("Subjects for tutoring are required"),
       hourlyRate: Yup.number().required("Hourly rate is required").typeError("Hourly rate must be a number"),
-      availableTime: Yup.string().required("Available time is required"),
       availableDays: Yup.array().min(1, "At least one available day is required").required("Available days are required"),
       certificate: Yup.mixed().required("Qualification certificate is required").test(
         "fileFormat",
@@ -195,18 +192,6 @@ export default function TutorProfileApproval() {
                         />
                         {formik.touched.hourlyRate && formik.errors.hourlyRate ? (
                           <div className="text-red-500 text-sm">{formik.errors.hourlyRate}</div>
-                        ) : null}
-                      </div>
-                      <div>
-                        <Label value="Available time" />
-                        <TextInput
-                          type="text"
-                          placeholder="Available Time"
-                          id="availableTime"
-                          {...formik.getFieldProps("availableTime")}
-                        />
-                        {formik.touched.availableTime && formik.errors.availableTime ? (
-                          <div className="text-red-500 text-sm">{formik.errors.availableTime}</div>
                         ) : null}
                       </div>
                       <div>

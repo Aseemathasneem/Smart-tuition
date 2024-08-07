@@ -11,8 +11,8 @@ export const apiCall = async (method, url, data = null) => {
     
     return response;
   } catch (error) {
-    if (error.response && error.response.status === 403) {
-      throw new Error(error.response.data.message); // Custom error message
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
     }
     throw error;
   }

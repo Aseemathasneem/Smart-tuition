@@ -9,10 +9,13 @@ import { signout,
   getStudentData,
   getApprovedTutors,
   getTutorDetails,
-  bookSlot
+  bookSlot,
+  fetchBookedSlots,
+  getNotifications
   } from '../controllers/student.controller.js'
 
   import { verifyToken } from '../../middleware/authMiddleware.js';
+import { fetchReview, submitReview } from '../controllers/review.controller.js';
 
 
 
@@ -29,6 +32,10 @@ router.get('/user-info', verifyToken('student'), getStudentData);
 router.get('/approved-tutors',verifyToken('student'),  getApprovedTutors);
 router.get('/tutors/:tutorId',verifyToken('student'), getTutorDetails);
 router.post('/book_slot',verifyToken('student'), bookSlot);
+router.get('/booked-slots/:studentId',verifyToken('student'),fetchBookedSlots)
+router.post('/submit_review',verifyToken('student'),submitReview)
+router.get('/reviews/tutor/:tutorId',verifyToken('student'),fetchReview)
+router.get('/notifications/:userId',verifyToken('student'),getNotifications)
 
 
 

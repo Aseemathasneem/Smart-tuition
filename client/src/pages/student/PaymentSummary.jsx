@@ -53,7 +53,7 @@ const CheckoutForm = ({ amount, sessionDetails }) => {
 
 const PaymentSummary = () => {
   const location = useLocation();
-  const { tutorName, startTime, endTime, subjects, amount, tutorId, studentId, date } = location.state || {};
+  const { tutorName, startTime, endTime, subjects, amount, tutorId, studentId, date, slotId } = location.state || {};
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800 p-4">
@@ -67,7 +67,7 @@ const PaymentSummary = () => {
           <p><strong>Amount to be paid:</strong> Rs{amount}</p>
         </div>
         <Elements stripe={stripePromise}>
-          <CheckoutForm amount={amount} sessionDetails={{ tutorId, studentId, date, tutorName, startTime, endTime, subjects }} />
+          <CheckoutForm amount={amount} sessionDetails={{ tutorId, studentId, date, tutorName, startTime, endTime, subjects, slotId }} />
         </Elements>
       </div>
     </div>

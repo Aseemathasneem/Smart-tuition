@@ -1,5 +1,9 @@
+
 import Student from '../../domain/student.model.js';
 import Tutor from '../../domain/tutor.model.js';
+import Slot from '../../domain/slot.model.js'
+import Session from '../../domain/session.model.js'
+import Notification from '../../domain/notification.model.js';
 import {
   signup,
   resendOtp,
@@ -43,7 +47,9 @@ export const getTutorDetails = async (req, res) => {
       return res.status(404).json({ message: 'Tutor not found' });
     }
 
-    res.json(tutor);
+    const slots = await Slot.find({ tutorId: req.params.tutorId });
+
+    res.json({ tutor, slots });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -53,52 +59,91 @@ export const bookSlot = async (req, res) => {
   const { tutorId, studentId, date, startTime, endTime } = req.body;
 
   try {
+    
+
     const tutor = await Tutor.findById(tutorId);
     const student = await Student.findById(studentId);
 
     if (!tutor || !student) {
+     
       return res.status(404).json({ message: 'Tutor or student not found' });
     }
-    
-    // Find the slot to be booked
-    const slotIndex = tutor.availability.findIndex(
-      slot =>
-        slot.date.getTime() === new Date(date).getTime() && slot.startTime === startTime && slot.endTime === endTime
-    );
 
-    if (slotIndex === -1) {
-      return res.status(400).json({ message: 'Slot not available' });
-    }
-    
-    const bookedSlotFromAvailability = tutor.availability.splice(slotIndex, 1)[0];
-
-    // Create a new object for the booked slot including studentId and status
-    const bookedSlot = {
-      studentId: studentId,
-      date: bookedSlotFromAvailability.date,
-      startTime: bookedSlotFromAvailability.startTime,
-      endTime: bookedSlotFromAvailability.endTime,
-      status: 'pending', // Set status to pending
-    };
-
-    // Move the booked slot to the booked array
-    tutor.booked.push(bookedSlot);
-
-    // Add the booked slot to the student's bookedSlots with status pending
-    student.bookedSlots.push({
+    const slot = await Slot.findOne({
       tutorId,
       date,
       startTime,
       endTime,
-      status: 'pending', 
+      status: 'available'
     });
 
-    // Save both documents
-    await tutor.save();
-    await student.save();
+    if (!slot) {
+      
+      return res.status(400).json({ message: 'Slot not available' });
+    }
 
-    res.status(200).json({ message: 'Slot booked successfully with pending status' });
+    
+
+    // Create a new session with status pending
+    const session = new Session({
+      tutorId,
+      studentId,
+      slotId: slot._id,
+      status: 'pending',
+      paymentStatus: 'pending'
+    });
+
+    
+
+    // Update slot with studentId and status
+    slot.studentId = studentId;
+    slot.status = 'booked';
+
+    await slot.save();
+    
+
+    await session.save();
+    
+    res.status(200).json({ message: 'Slot booked successfully with pending status', slotId: slot._id });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+export const fetchBookedSlots = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+  
+    const sessions = await Session.find({ studentId, status: 'confirmed' }).populate('slotId tutorId');
+
+   
+
+    // Extract necessary slot details
+    const bookedSlots = sessions.map(session => ({
+      sessionId: session._id,
+      tutorId: session.tutorId,
+      date: session.slotId.date,
+      startTime: session.slotId.startTime,
+      endTime: session.slotId.endTime
+    }));
+
+    res.status(200).json(bookedSlots);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
+export const getNotifications = async (req, res, next) => {
+  try {
+    const { userId } = req.params; // Access userId from route parameters
+    const notifications = await Notification.find({
+      userId,
+      userType: 'student',
+    }).sort({ createdAt: -1 });
+    res.status(200).json({ notifications });
+  } catch (error) {
+    next(error);
+  }
+};
+

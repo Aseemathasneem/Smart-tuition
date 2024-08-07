@@ -1,12 +1,13 @@
 import Stripe from 'stripe';
-import Student from '../../domain/student.model.js';
-import Tutor from '../../domain/tutor.model.js';
+import Session from '../../domain/session.model.js';
+import Notification from '../../domain/notification.model.js'
+import Slot from '../../domain/slot.model.js'
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
   const { amount, sessionDetails } = req.body;
-  
- 
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -17,7 +18,7 @@ export const createCheckoutSession = async (req, res) => {
             name: `Tutoring Session with ${sessionDetails.tutorName}`,
             description: `Subjects: ${sessionDetails.subjects}, Start Time: ${sessionDetails.startTime}, End Time: ${sessionDetails.endTime}`,
           },
-          unit_amount: amount * 100, // Amount in paise (1 INR = 100 paise)
+          unit_amount: amount * 100,
         },
         quantity: 1,
       }],
@@ -27,12 +28,10 @@ export const createCheckoutSession = async (req, res) => {
       metadata: {
         tutorId: sessionDetails.tutorId,
         studentId: sessionDetails.studentId,
-        date: sessionDetails.date,
-        startTime: sessionDetails.startTime,
-        endTime: sessionDetails.endTime,
+        slotId: sessionDetails.slotId,
       },
     });
-   
+
     res.json({ id: session.id });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -46,72 +45,64 @@ export const handleStripeWebhook = async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.log(`  Webhook signature verification failed.`, err.message);
+    console.log(`Webhook signature verification failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-  
+
     try {
-      const tutorId = session.metadata.tutorId;
-      const studentId = session.metadata.studentId;
-      const dateString = session.metadata.date;
-      const startTime = session.metadata.startTime;
-      const endTime = session.metadata.endTime;
+      const { tutorId, studentId, slotId } = session.metadata;
 
-      
+      const bookedSession = await Session.findOne({
+        tutorId,
+        studentId,
+        slotId,
+        status: 'pending',
+        paymentStatus: 'pending'
+      });
 
-      const tutor = await Tutor.findById(tutorId);
-      const student = await Student.findById(studentId);
-
-      if (!tutor || !student) {
-        return res.status(404).json({ message: 'Tutor or student not found' });
+      if (!bookedSession) {
+        console.log('Session not found for metadata:', session.metadata);
+        return res.status(404).json({ message: 'Session not found' });
       }
 
-      // Parse the date string and set the time to midnight to avoid time zone issues
-      const [month, day, year] = dateString.split('/').map(Number);
-      const date = new Date(Date.UTC(year, month - 1, day));
+       // Fetch slot details
+       const slot = await Slot.findById(slotId);
+       if (!slot) {
+         console.log('Slot not found for slotId:', slotId);
+         return res.status(404).json({ message: 'Slot not found' });
+       }
 
-    
+      // Update the session status to confirmed and paymentStatus to completed
+      bookedSession.status = 'confirmed';
+      bookedSession.paymentStatus = 'completed';
+      await bookedSession.save();
 
-      // Find the booked slot in tutor's schedule
-      const slotIndex = tutor.booked.findIndex(
-        slot =>
-          slot.studentId.equals(studentId) &&
-          slot.date.toISOString().split('T')[0] === date.toISOString().split('T')[0] &&
-          slot.startTime === startTime &&
-          slot.endTime === endTime
-      );
+      // Create and save notifications
+      const tutorNotification = new Notification({
+        userId: tutorId,
+        userType: 'tutor',
+        message: `A new booking has been confirmed for your session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`
+      });
 
-      if (slotIndex === -1) {
-        return res.status(400).json({ message: 'Booked slot not found in tutor’s schedule' });
-      }
-      console.log('tutor', tutor.booked[slotIndex]);
+      const studentNotification = new Notification({
+        userId: studentId,
+        userType: 'student',
+        message:`Your booking has been confirmed for the session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`
+      });
 
-      // Mark the booked slot as completed
-      tutor.booked[slotIndex].status = 'completed';
-      await tutor.save();
+      await tutorNotification.save();
+      await studentNotification.save();
 
-      // Find and update the corresponding slot in student's schedule
-      const studentSlotIndex = student.bookedSlots.findIndex(
-        slot =>
-          slot.tutorId.equals(tutorId) &&
-          slot.date.toISOString().split('T')[0] === date.toISOString().split('T')[0] &&
-          slot.startTime === startTime &&
-          slot.endTime === endTime
-      );
-
-      if (studentSlotIndex === -1) {
-        return res.status(400).json({ message: 'Booked slot not found in student’s schedule' });
-      }
-      console.log('student', student.bookedSlots[studentSlotIndex]);
-
-      student.bookedSlots[studentSlotIndex].status = 'completed';
-      await student.save();
+     
 
       res.status(200).json({ received: true });
     } catch (error) {
+      console.log('Error processing webhook:', error);
       res.status(500).json({ error: 'Server error', details: error.message });
     }
   } else {

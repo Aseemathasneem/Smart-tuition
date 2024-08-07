@@ -1,27 +1,55 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Navbar, Dropdown, Avatar } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { FaMoon, FaSun, FaBell } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
+import { clearAuth, fetchStudentData } from '../redux/student/studentSlice';
+import { fetchSubjects } from '../redux/subjects/subjectsSlice';
+import io from 'socket.io-client';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { clearAuth, resetError,fetchStudentData } from '../redux/student/studentSlice';
+const socket = io('http://localhost:3000'); // Adjust URL as necessary
 
 const StudentHeader = () => {
   const path = useLocation().pathname;
   const { currentUser, loading, error } = useSelector((state) => state.student);
-  
+  const { subjects } = useSelector((state) => state.subjects); // Get subjects from the Redux store
   const { theme } = useSelector((state) => state.theme);
   const { token } = useSelector((state) => state.student);
   const dispatch = useDispatch();
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('st_token');
-   
     if (storedToken && !currentUser) {
       dispatch(fetchStudentData(storedToken));
     }
+    dispatch(fetchSubjects()); // Fetch subjects when the component mounts
   }, [dispatch, currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      // Listen for real-time notifications
+      socket.emit('join', currentUser._id);
+      console.log('Joined room:', currentUser._id);
+
+      socket.on('notification', (notification) => {
+        console.log('Real-time notification received:', notification);
+        setNotifications((prev) => [notification, ...prev]);
+        toast.info('New notification received');
+      });
+    }
+
+    return () => {
+      if (currentUser) {
+        socket.emit('leave', currentUser._id);
+        console.log('Left room:', currentUser._id);
+        socket.off('notification');
+      }
+    };
+  }, [currentUser]);
 
   const handleSignout = async () => {
     try {
@@ -55,6 +83,14 @@ const StudentHeader = () => {
         >
           {theme === 'light' ? <FaSun /> : <FaMoon />}
         </Button>
+        <Link to='/student/notifications'>
+          <Button className='w-12 h-10' color='gray' pill>
+            <FaBell />
+            {notifications.length > 0 && (
+              <span className="badge">{notifications.length}</span>
+            )}
+          </Button>
+        </Link>
         {currentUser ? (
           <Dropdown
             arrowIcon={false}
@@ -81,13 +117,29 @@ const StudentHeader = () => {
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        <Navbar.Link active={path === '/'} as={'div'}>
-          <Link to='/'>Home</Link>
+        <Navbar.Link active={path === '/student/home'} as={'div'}>
+          <Link to='/student/home'>Home</Link>
         </Navbar.Link>
         <Navbar.Link active={path === '/student/profile'} as={'div'}>
           <Link to='/student/approved-tutors'>Tutors</Link>
         </Navbar.Link>
+        <Dropdown
+          label="Subjects"
+          arrowIcon={false}
+          inline
+          className='ml-4'
+        >
+          {subjects.map((subject) => (
+            <Link key={subject.id} to={`/student/subjects/${subject.id}`}>
+              <Dropdown.Item>{subject.name}</Dropdown.Item>
+            </Link>
+          ))}
+        </Dropdown>
+        <Navbar.Link active={path === '/student/booked_sessions'} as={'div'}>
+          <Link to='/student/booked_sessions'>Booked sessions</Link>
+        </Navbar.Link>
       </Navbar.Collapse>
+      <ToastContainer />
     </Navbar>
   );
 };

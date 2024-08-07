@@ -10,6 +10,12 @@ const endpoints = {
     GET_APPROVED_TUTORS:'/student/approved-tutors',
     GET_TUTOR_DETAILS: (tutorId) => `/student/tutors/${tutorId}`,
     BOOK_SLOT : '/student/book_slot',
+    FETCH_STUDENT_BOOKED_SLOTS :'/student/booked-slots',
+    STUDENT_SUBMIT_REVIEW : '/student/submit_review',
+    GET_TUTOR_REVIEWS: (tutorId) => `/student/reviews/tutor/${tutorId}`,
+    GET_STUDENT_NOTIFICATIONS: (userId) => `/student/notifications/${userId}`,
+   
+    MARK_ATTENDANCE: (sessionId) => `/sessions/${sessionId}/leave`,
 
 
    TUTOR_SIGN_UP: '/tutor/signup',
@@ -23,6 +29,13 @@ const endpoints = {
     SAVE_AVAILABILITY:'tutor/save-availability',
     TUTOR_FETCH_SUBJECTS : '/tutor/subjects',
     FETCH_BOOKED_SLOTS :'/tutor/booked-slots',
+    FETCH_AVAILABLE_SLOTS :'/tutor/available-slots',
+    DELETE_SLOT :'/tutor/delete-slot',
+    UPDATE_SLOT :'/tutor/update-slot',
+    UPDATE_SESSION:'/tutor/update-session',
+    CANCEL_SESSION: (sessionId) => `/tutor/cancel/${sessionId}`,
+    GET_TUTOR_NOTIFICATIONS: (userId) => `/tutor/notifications/${userId}`,
+
 
 
 

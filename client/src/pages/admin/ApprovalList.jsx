@@ -84,7 +84,6 @@ export default function ApprovalList() {
                 <p><strong>Subjects:</strong> {request.tutor.subjects?.join(', ')}</p>
                 <p><strong>Classes:</strong> {request.tutor.classes?.join(', ')}</p>
                 <p><strong>Hourly Rate:</strong> Rs.{request.tutor.hourlyRate}</p>
-                <p><strong>Available Time:</strong> {request.tutor.availableTime}</p>
                 <p><strong>Available Days:</strong> {availableDays.join(', ')}</p>
                 <p><strong>Bio:</strong> {request.tutor.bio}</p>
                 <a

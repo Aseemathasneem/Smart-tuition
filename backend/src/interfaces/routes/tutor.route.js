@@ -11,12 +11,19 @@ import {
   tutorProfileUpdate,
   getTutorProfile,
   saveAvailability,
-  fetchBookedSlots
+  fetchBookedSlots,
+  getTutorNotifications,
+  getAvailableSlots,
+  deleteSlot,
+  updateSlot,
+  updateSession
 
 } from '../controllers/tutor.controller.js';
 import { verifyToken} from '../../middleware/authMiddleware.js';
 import upload from '../../middleware/uploadCertificate.js';
 import { getSubjects } from '../controllers/subject.controller.js';
+
+import { cancelSession } from '../controllers/session.controller.js';
 
 const router = express.Router();
 
@@ -35,6 +42,18 @@ router.post('/profile-update',verifyToken('tutor'),upload,tutorProfileUpdate)
 router.get('/profile',verifyToken('tutor'),getTutorProfile)
 router.post('/save-availability',verifyToken('tutor'),saveAvailability)
 router.get('/subjects',verifyToken('tutor'),getSubjects)
-router.get('/booked-slots/:tutorId',fetchBookedSlots)
+router.get('/booked-slots/:tutorId', verifyToken('tutor'),fetchBookedSlots)
+router.get('/available-slots/:tutorId',verifyToken('tutor'), getAvailableSlots);
+router.delete('/delete-slot/:slotId',verifyToken('tutor'), deleteSlot);
+router.put('/update-slot/:slotId',verifyToken('tutor'), updateSlot);
+router.put('/update-session/:sessionId',verifyToken('tutor'), updateSession);
+
+
+
+
+router.get('/notifications/:userId',verifyToken('tutor'),getTutorNotifications)
+router.put('/cancel/:sessionId',verifyToken('tutor'), cancelSession);
+
+
 
 export default router;

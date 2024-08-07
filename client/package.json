@@ -30,7 +30,9 @@
     "react-time-picker": "^7.0.0",
     "react-toastify": "^10.0.5",
     "redux-persist": "^6.0.0",
-    "sweetalert2": "^11.12.2",
+    "socket.io-client": "^4.7.5",
+    "sweetalert2": "^11.12.4",
+    "sweetalert2-react-content": "^5.0.7",
     "yup": "^1.4.0"
   },
   "devDependencies": {

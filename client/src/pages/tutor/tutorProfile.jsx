@@ -63,10 +63,7 @@ const TutorProfile = () => {
               <h3 className="text-xl font-semibold">Hourly Rate</h3>
               <p>{tutor.hourlyRate}</p>
             </div>
-            <div className="mt-4 w-full">
-              <h3 className="text-xl font-semibold">Available Time</h3>
-              <p>{tutor.availableTime}</p>
-            </div>
+            
             <div className="mt-4 w-full">
               <h3 className="text-xl font-semibold">Available Days</h3>
               <p>{tutor.availableDays.join(', ')}</p>

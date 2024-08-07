@@ -5,6 +5,7 @@ import TutorProfileApproval from './tutorProfileApproval';
 import ScheduleAvailability from './ScheduleAvailability';
 import TutorSidebar from '../../components/TutorSidebar'
 import BookedSlots from './BookedSlots';
+import AvailableSlots from './AvailableSlots'
 
 export default function TutorDashboard() {
   const location = useLocation();
@@ -30,6 +31,7 @@ export default function TutorDashboard() {
       {/* users */}
       {tab === 'availability' && <ScheduleAvailability />}
       {tab === 'booked-slots' && <BookedSlots />}
+      {tab === 'available-slots' && <AvailableSlots />}
       </div>
     </div>
   )

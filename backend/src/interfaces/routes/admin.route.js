@@ -42,10 +42,10 @@ router.get('/approvalRequests', verifyToken('admin'),getApprovalRequests);
 router.post('/approvalRequests/approve',verifyToken('admin'), approveRequest);
 router.post('/approvalRequests/reject',verifyToken('admin'), rejectRequest);
 
-router.get('/subjects',verifyToken('admin'), getSubjects);
+router.get('/subjects', getSubjects);
 router.post('/add-subject',verifyToken('admin'), addSubject);
 router.put('/update-subject/:id', verifyToken('admin'),updateSubject);
-router.delete('/delete-subject/:id',deleteSubject);
+router.delete('/delete-subject/:id',verifyToken('admin'),deleteSubject);
 
 
 export default router;

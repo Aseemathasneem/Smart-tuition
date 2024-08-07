@@ -60,9 +60,7 @@ const tutorSchema = new mongoose.Schema({
   hourlyRate: {
     type: Number,
   },
-  availableTime: {
-    type: String,
-  },
+ 
   availableDays: {
     type: [String],
   },
@@ -72,44 +70,8 @@ const tutorSchema = new mongoose.Schema({
   certificate: {
     type: String,
   },
-  availability: [
-    {
-      date: {
-        type: Date,
-        required: true,
-      },
-      startTime: {
-        type: String,
-        required: true,
-      },
-      endTime: {
-        type: String,
-        required: true,
-      },
-    }
-  ],
-  booked: [
-    {
-      studentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student',
-        required: true,
-      },
-      date: {
-        type: Date,
-        required: true,
-      },
-      startTime: {
-        type: String,
-        required: true,
-      },
-      endTime: {
-        type: String,
-        required: true,
-      },
-      status: { type: String, default: 'pending' },
-    }
-  ],
+ 
+ 
 }, { timestamps: true });
 
 // Method to hash OTP before saving

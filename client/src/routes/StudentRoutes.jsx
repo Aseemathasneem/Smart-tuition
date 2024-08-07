@@ -14,6 +14,9 @@ import Success from '../pages/student/success';
 import Cancel from '../pages/student/cancel';
 import StudentSession from '../pages/student/StudentSession';
 
+import StudentBookedSessions from '../pages/student/BookedSessions';
+import StudentNotifications from '../pages/student/Studentnotifications';
+
 
 const StudentRoutes = () => (
   <Routes>
@@ -28,7 +31,10 @@ const StudentRoutes = () => (
       <Route path="/payment-summary" element={<PaymentSummary />} />
       <Route path="/payment-success" element={<Success />} />
       <Route path="/payment-cancel" element={<Cancel />} />
-      <Route path="session/:slotId" element={<StudentSession />} />
+      <Route path="booked_sessions" element={<StudentBookedSessions/>} />
+      <Route path="notifications" element={<StudentNotifications/>} />
+      <Route path="session/:sessionId" element={<StudentSession />} />
+     
   </Route>
   </Routes>
 );

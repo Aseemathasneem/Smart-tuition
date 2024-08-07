@@ -1,13 +1,18 @@
 import React from "react";
 import { Sidebar } from "flowbite-react";
-import { HiUser, HiDocumentReport, HiCalendar ,HiChartPie,HiClock} from "react-icons/hi";
+import {
+  HiUser,
+  HiDocumentReport,
+  HiCalendar,
+  HiChartPie,
+  HiClock,
+} from "react-icons/hi";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function TutorSidebar() {
   const location = useLocation();
- 
- 
+
   const [tab, setTab] = useState("");
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -32,7 +37,7 @@ export default function TutorSidebar() {
 
           <Link to="/tutor/dashboard?tab=apply_for_approval">
             <Sidebar.Item
-              active={tab === "apply_for_approval" }
+              active={tab === "apply_for_approval"}
               icon={HiDocumentReport}
               as="div"
             >
@@ -62,12 +67,21 @@ export default function TutorSidebar() {
             </Sidebar.Item>
           </Link>
           <Link to="/tutor/dashboard?tab=booked-slots">
+            <Sidebar.Item
+              active={tab === "booked-slots"}
+              icon={HiClock}
+              as="div"
+            >
+              View Booked Slots
+            </Sidebar.Item>
+          </Link>
+          <Link to="/tutor/dashboard?tab=available-slots">
         <Sidebar.Item
-          active={tab === 'booked-slots'}
+          active={tab === "available-slots"}
           icon={HiClock}
           as="div"
         >
-          View Booked Slots
+          View Available Slots
         </Sidebar.Item>
       </Link>
         </Sidebar.ItemGroup>

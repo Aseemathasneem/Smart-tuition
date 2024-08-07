@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { apiCall } from '../../api/apiCalls';
+import endpoints from '../../api/endpoints';
 
 export default function TutorSession() {
-  const { slotId } = useParams();
+  const { sessionId } = useParams();
+  const location = useLocation();
+  const { studentId, tutorId } = location.state || {};
 
   useEffect(() => {
     const appID = Number(import.meta.env.VITE_APP_ZEGO_APP_ID);
@@ -11,8 +15,8 @@ export default function TutorSession() {
     const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
       appID,
       serverSecret,
-      slotId,
-      slotId, // Using slotId as userId
+      sessionId,
+      sessionId, // Using slotId as userId
       'Tutor'
     );
 
@@ -20,8 +24,26 @@ export default function TutorSession() {
     zp.joinRoom({
       container: document.getElementById('video-call-container'),
       scenario: { mode: ZegoUIKitPrebuilt.VideoConference },
+      onJoinRoom: (users) => {
+        // You can handle any logic needed when the room is joined
+      },
+      onLeaveRoom: async (users) => {
+        try {
+          await apiCall('put',endpoints.MARK_ATTENDANCE(sessionId), {
+            tutorId,
+            tutorAttended: true,
+          });
+          console.log('Tutor left the room:', users);
+        } catch (error) {
+          console.error('Error marking tutor attendance:', error);
+        }
+      }
     });
-  }, [slotId]);
+
+    return () => {
+      zp.leaveRoom();
+    };
+  }, [sessionId, tutorId]);
 
   return (
     <div className="min-h-screen p-6">

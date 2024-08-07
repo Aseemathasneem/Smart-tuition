@@ -45,6 +45,10 @@ const studentSchema = new mongoose.Schema({
   },
   bookedSlots: [
     {
+      sessionId: {
+        type: String,
+        required: true,
+      },
       tutorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tutor',

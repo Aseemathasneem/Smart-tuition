@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button, Navbar, Dropdown, Avatar } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { FaMoon, FaSun ,FaBell} from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 
@@ -54,6 +54,11 @@ const TutorHeader = () => {
         >
           {theme === 'light' ? <FaSun /> : <FaMoon />}
         </Button>
+        <Link to='/tutor/notifications'>
+        <Button className='w-12 h-10' color='gray' pill>
+          <FaBell />
+        </Button>
+      </Link>
         {currentUser ? (
           <Dropdown
             arrowIcon={false}
@@ -81,7 +86,7 @@ const TutorHeader = () => {
       </div>
       <Navbar.Collapse>
         <Navbar.Link active={path === '/'} as={'div'}>
-          <Link to='/'>Home</Link>
+          <Link to='/tutor/home'>Home</Link>
         </Navbar.Link>
         <Navbar.Link active={path === '/tutor/profile'} as={'div'}>
           <Link to='/tutor/dashboard'>Dashboard</Link>
