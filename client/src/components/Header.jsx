@@ -11,7 +11,7 @@ export default function Header() {
   const dispatch = useDispatch();
 
   return (
-    <Navbar className='border-b-2'>
+    <Navbar className='border-b-2 '>
       <Link to='/'>
         <img src='/images/logo.jpeg' alt='Logo' className='h-14 w-16' />
       </Link>
@@ -46,5 +46,6 @@ export default function Header() {
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
+    
   );
 }

@@ -215,7 +215,7 @@ export async function googleSignIn(Model, req, res, next) {
 
     if (user) {
       const accessToken = generateAccessToken(user);
-      const refreshToken = generateRefreshToken(user);
+      // const refreshToken = generateRefreshToken(user);
 
       const { password, ...rest } = user._doc;
 
@@ -226,15 +226,15 @@ export async function googleSignIn(Model, req, res, next) {
           secure: true, // Set to true if using HTTPS
           sameSite: 'Strict', // Adjust according to your needs
         })
-        .cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: true, // Set to true if using HTTPS
-          sameSite: 'Strict', // Adjust according to your needs
-        })
+        // .cookie('refreshToken', refreshToken, {
+        //   httpOnly: true,
+        //   secure: true, // Set to true if using HTTPS
+        //   sameSite: 'Strict', // Adjust according to your needs
+        // })
         .json({
           ...rest,
           accessToken, // Include the access token in the response body
-          refreshToken, // Include the refresh token in the response body
+        // Include the refresh token in the response body
         });
     } else {
       const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
@@ -252,7 +252,7 @@ export async function googleSignIn(Model, req, res, next) {
       await newUser.save();
 
       const accessToken = generateAccessToken(newUser);
-      const refreshToken = generateRefreshToken(newUser);
+      // const refreshToken = generateRefreshToken(newUser);
 
       const { password, ...rest } = newUser._doc;
 

@@ -1,8 +1,14 @@
+
+import mongoose from 'mongoose';
 import Tutor from '../../domain/tutor.model.js';
 import  Slot  from '../../domain/slot.model.js'
 import Session from '../../domain/session.model.js'
 import Notification from '../../domain/notification.model.js';
 import ApprovalRequest from '../../domain/approvalRequest.model.js';
+import Student from '../../domain/student.model.js'
+import Assignment from '../../domain/assignment.model.js'
+import Submission from '../../domain/submission.model.js'
+import Payment from '../../domain/payment.model.js'
 import { errorHandler } from '../../utils/error.js';
 import {
   signup,
@@ -295,5 +301,82 @@ export const getTutorNotifications = async (req, res, next) => {
     res.status(200).json({ notifications });
   } catch (error) {
     next(error);
+  }
+};
+export const fetchStudents = async (req, res, next) => {
+  try {
+    const students = await Student.find({});
+   
+    res.status(200).json(students);
+  } catch (error) {
+    next(error);
+  }
+
+};
+
+export const createAssignment = async (req, res) => {
+  try {
+    const assignment = new Assignment(req.body);
+    await assignment.save();
+    res.status(201).json(assignment);
+    console.log('assnmnt saved successfully');
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getSubmittedAssignments = async (req, res) => {
+  try {
+    const { tutorId } = req.params;
+
+    // Find completed assignments for the tutor
+    const completedAssignments = await Assignment.find({ tutorId, status: 'completed' });
+
+    // Extract assignment IDs
+    const assignmentIds = completedAssignments.map(assignment => assignment._id);
+
+    // Find submissions for these assignments
+    const submissions = await Submission.find({ assignmentId: { $in: assignmentIds } }).populate('studentId').populate('assignmentId');
+
+    // Format the response to include assignment details along with the submissions
+    const response = completedAssignments.map(assignment => ({
+      ...assignment.toObject(),
+      submissions: submissions.filter(submission => submission.assignmentId.equals(assignment._id))
+    }));
+   
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch submitted assignments', error });
+  }
+};
+
+export const getTutorRevenue = async (req, res) => {
+  
+  const { tutorId } = req.params;
+  
+  try {
+    // Convert tutorId to ObjectId if necessary
+    const tutorObjectId =new mongoose.Types.ObjectId(tutorId);
+    // Fetch all payments related to the specific tutor
+    const payments = await Payment.aggregate([
+      { $match: { tutorId: tutorObjectId } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$tutoringFee' } 
+        }
+      }
+    ]);
+   
+
+    // If no payments found, set totalRevenue to 0
+    const totalRevenue = payments.length > 0 ? payments[0].totalRevenue : 0;
+
+    
+    res.json({ totalRevenue });
+  } catch (error) {
+    
+    res.status(500).json({ error: 'Failed to fetch tutor revenue', details: error.message });
   }
 };

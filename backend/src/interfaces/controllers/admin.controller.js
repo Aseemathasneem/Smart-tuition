@@ -1,6 +1,7 @@
 import Admin from '../../domain/admin.model.js';
 import Student from '../../domain/student.model.js';
 import Tutor from '../../domain/tutor.model.js';
+import Payment from '../../domain/payment.model.js'
 import nodemailer from 'nodemailer';
 import ApprovalRequest from '../../domain/approvalRequest.model.js';
 import {
@@ -207,5 +208,26 @@ export const rejectRequest = async (req, res, next) => {
   }
 };
 
+export const getAdminRevenue = async (req, res) => {
+  try {
+    // Aggregate all payments to calculate total revenue
+    const payments = await Payment.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalAmount' }
+        }
+      }
+    ]);
+
+    // If no payments found, set totalRevenue to 0
+    const totalRevenue = payments.length > 0 ? payments[0].totalRevenue : 0;
+
+    res.json({ totalRevenue });
+  } catch (error) {
+    console.error('Error fetching admin revenue:', error);
+    res.status(500).json({ error: 'Failed to fetch admin revenue', details: error.message });
+  }
+};
 
 

@@ -89,7 +89,7 @@ const TutorHeader = () => {
           <Link to='/tutor/home'>Home</Link>
         </Navbar.Link>
         <Navbar.Link active={path === '/tutor/profile'} as={'div'}>
-          <Link to='/tutor/dashboard'>Dashboard</Link>
+        <Link to="/tutor/dashboard?tab=dash">Dashboard</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>

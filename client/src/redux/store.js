@@ -4,6 +4,7 @@ import tutorReducer from './tutor/tutorSlice';
 import adminReducer from './admin/adminSlice';
 import themeReducer from './theme/themeSlice';
 import subjectReducer from './subjects/subjectsSlice';
+import assignmentReducer from './assignment/assignmentSlice'
 
 
 // Combine reducers without persistence
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   theme: themeReducer,
   subjects: subjectReducer,
+  assignment:assignmentReducer,
  
 });
 

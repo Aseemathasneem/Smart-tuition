@@ -138,6 +138,9 @@ const StudentHeader = () => {
         <Navbar.Link active={path === '/student/booked_sessions'} as={'div'}>
           <Link to='/student/booked_sessions'>Booked sessions</Link>
         </Navbar.Link>
+        <Navbar.Link active={path === '/student/assignments'} as={'div'}>
+          <Link to='/student/assignments'>Assignments</Link>
+        </Navbar.Link>
       </Navbar.Collapse>
       <ToastContainer />
     </Navbar>

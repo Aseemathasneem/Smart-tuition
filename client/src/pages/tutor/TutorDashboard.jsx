@@ -6,6 +6,15 @@ import ScheduleAvailability from './ScheduleAvailability';
 import TutorSidebar from '../../components/TutorSidebar'
 import BookedSlots from './BookedSlots';
 import AvailableSlots from './AvailableSlots'
+import PostAssignment from './PostAssignment';
+import TutorSubmittedAssignments from './TutorSubmittedAssignments';
+import DashboardContent from './DashboardContent';
+
+
+
+
+
+
 
 export default function TutorDashboard() {
   const location = useLocation();
@@ -23,18 +32,18 @@ export default function TutorDashboard() {
         {/* Sidebar */}
         <TutorSidebar />
       </div>
-      <div className='flex-1 flex justify-center items-center'>
-      {/* profile... */}
-      {tab === 'profile' && <TutorProfile />}
-      {/* profile-approval... */}
-      {tab === 'apply_for_approval' && <TutorProfileApproval />}
-      {/* users */}
-      {tab === 'availability' && <ScheduleAvailability />}
-      {tab === 'booked-slots' && <BookedSlots />}
-      {tab === 'available-slots' && <AvailableSlots />}
+      <div className='flex-1 p-4'>
+        {tab === 'dash' && <DashboardContent />}
+        {tab === 'profile' && <TutorProfile />}
+        {tab === 'apply_for_approval' && <TutorProfileApproval />}
+        {tab === 'availability' && <ScheduleAvailability />}
+        {tab === 'booked-slots' && <BookedSlots />}
+        {tab === 'available-slots' && <AvailableSlots />}
+        {tab === 'post-assignment' && <PostAssignment />}
+        {tab === 'submitted-assignments' && <TutorSubmittedAssignments />}
       </div>
     </div>
-  )
+  );
 }
 
 

@@ -27,8 +27,8 @@ export default function TutorSignIn() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (currentUser) {
-      navigate('/tutor/home');
+    if (currentUser && currentUser.role === 'tutor') {
+      navigate('/tutor/home'); 
     }
   }, [currentUser, navigate]);
 

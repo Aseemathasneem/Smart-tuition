@@ -1,4 +1,4 @@
-import {Card, Alert, Button, Label, Spinner, TextInput, Textarea, FileInput, Checkbox } from "flowbite-react";
+import { Card, Alert, Button, Label, Spinner, TextInput, Textarea, FileInput } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -9,12 +9,11 @@ import { updateTutorStatus } from '../../redux/tutor/tutorSlice';
 
 export default function TutorProfileApproval() {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null); // New state for success message
+  const [successMessage, setSuccessMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const { currentUser: tutorUser } = useSelector((state) => state.tutor);
   const [subjects, setSubjects] = useState([]);
   const dispatch = useDispatch();
-
 
   const fetchSubjects = async () => {
     try {
@@ -25,8 +24,8 @@ export default function TutorProfileApproval() {
       return [];
     }
   };
+
   useEffect(() => {
-    // Fetch subjects on component mount
     const loadSubjects = async () => {
       const fetchedSubjects = await fetchSubjects();
       setSubjects(fetchedSubjects);
@@ -35,14 +34,12 @@ export default function TutorProfileApproval() {
   }, []);
 
   useEffect(() => {
-    // Fetch the tutor profile details on component mount and set the form values if available
     if (tutorUser) {
       formik.setValues({
         qualification: tutorUser.qualification || "",
         classes: tutorUser.classes || "",
         subjects: tutorUser.subjects || "",
         hourlyRate: tutorUser.hourlyRate || "",
-        availableDays: tutorUser.availableDays || [],
         certificate: tutorUser.certificate || null,
         bio: tutorUser.bio || "",
       });
@@ -55,7 +52,6 @@ export default function TutorProfileApproval() {
       classes: "",
       subjects: "",
       hourlyRate: "",
-      availableDays: [],
       certificate: null,
       bio: "",
     },
@@ -64,7 +60,6 @@ export default function TutorProfileApproval() {
       classes: Yup.string().required("Classes for tutoring are required"),
       subjects: Yup.string().required("Subjects for tutoring are required"),
       hourlyRate: Yup.number().required("Hourly rate is required").typeError("Hourly rate must be a number"),
-      availableDays: Yup.array().min(1, "At least one available day is required").required("Available days are required"),
       certificate: Yup.mixed().required("Qualification certificate is required").test(
         "fileFormat",
         "Only PDF files are allowed",
@@ -76,25 +71,19 @@ export default function TutorProfileApproval() {
       try {
         setLoading(true);
         setErrorMessage(null);
-        setSuccessMessage(null); // Reset success message
+        setSuccessMessage(null);
 
         const formData = new FormData();
         formData.append('qualification', values.qualification);
         formData.append('classes', values.classes);
         formData.append('subjects', values.subjects);
         formData.append('hourlyRate', values.hourlyRate);
-        formData.append('availableTime', values.availableTime);
-        formData.append('availableDays', JSON.stringify(values.availableDays)); // Ensure this is serialized
         formData.append('certificate', values.certificate);
         formData.append('bio', values.bio);
 
-        // Debug: Log the form data
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-        const response = await apiCall('post',endpoints.TUTOR_PROFILE_UPDATE, formData, {
+        const response = await apiCall('post', endpoints.TUTOR_PROFILE_UPDATE, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data', // Explicitly set for this request
+            'Content-Type': 'multipart/form-data',
           }
         });
 
@@ -103,7 +92,7 @@ export default function TutorProfileApproval() {
         if (response.data.success === false) {
           setErrorMessage(response.data.message);
         } else {
-          setSuccessMessage(response.data.message); 
+          setSuccessMessage(response.data.message);
           dispatch(updateTutorStatus('pending'));
         }
       } catch (error) {
@@ -114,13 +103,13 @@ export default function TutorProfileApproval() {
       }
     },
   });
+
   const renderApprovalStatus = () => {
     if (tutorUser.status === 'approved') {
       return (
         <div className="flex-1 overflow-y-auto bg-gray-200 p-3 max-w-3xl mx-auto">
           <div className="min-h-screen flex flex-col items-center justify-center">
             <h2 className="text-2xl font-bold">Your Profile is Already Approved</h2>
-            {/* You can add additional content or actions here if needed */}
           </div>
         </div>
       );
@@ -195,26 +184,6 @@ export default function TutorProfileApproval() {
                         ) : null}
                       </div>
                       <div>
-                        <Label value="Available days" />
-                        <div className="flex flex-col gap-2">
-                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                            <div key={day}>
-                              <Checkbox
-                                id={day}
-                                name="availableDays"
-                                value={day}
-                                checked={formik.values.availableDays.includes(day)}
-                                onChange={formik.handleChange}
-                              />
-                              <Label htmlFor={day}>{day}</Label>
-                            </div>
-                          ))}
-                        </div>
-                        {formik.touched.availableDays && formik.errors.availableDays ? (
-                          <div className="text-red-500 text-sm">{formik.errors.availableDays}</div>
-                        ) : null}
-                      </div>
-                      <div>
                         <Label value="Upload your qualification certificate" />
                         <FileInput
                           id="certificate"
@@ -275,7 +244,6 @@ export default function TutorProfileApproval() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-    
       {renderApprovalStatus()}
     </div>
   );

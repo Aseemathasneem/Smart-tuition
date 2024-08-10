@@ -3,7 +3,9 @@ import Student from '../../domain/student.model.js';
 import Tutor from '../../domain/tutor.model.js';
 import Slot from '../../domain/slot.model.js'
 import Session from '../../domain/session.model.js'
+import Assignment from '../../domain/assignment.model.js'
 import Notification from '../../domain/notification.model.js';
+import Submission from '../../domain/submission.model.js'
 import {
   signup,
   resendOtp,
@@ -147,3 +149,40 @@ export const getNotifications = async (req, res, next) => {
   }
 };
 
+export const getAssignmentsByStudent = async (req, res) => {
+  const { studentId } = req.params;
+  
+
+  try {
+    const assignments = await Assignment.find({ studentId }).populate('tutorId', 'name');
+    res.status(200).json(assignments);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching assignments for the student', error });
+  }
+};
+
+ export const submitAnswer = async (req, res) => {
+  try {
+    const { assignmentId, studentId } = req.body;
+    
+    const file = req.file.path;
+
+    // Create a new submission
+    const newSubmission = new Submission({
+      assignmentId,
+      studentId,
+     
+      file
+    });
+
+    await newSubmission.save();
+
+    // Update the assignment status to completed
+    await Assignment.findByIdAndUpdate(assignmentId, { status: 'completed' });
+
+    res.status(201).json({ message: 'Answer submitted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

@@ -16,7 +16,11 @@ import {
   getAvailableSlots,
   deleteSlot,
   updateSlot,
-  updateSession
+  updateSession,
+  fetchStudents,
+  createAssignment,
+  getSubmittedAssignments,
+  getTutorRevenue
 
 } from '../controllers/tutor.controller.js';
 import { verifyToken} from '../../middleware/authMiddleware.js';
@@ -48,11 +52,16 @@ router.delete('/delete-slot/:slotId',verifyToken('tutor'), deleteSlot);
 router.put('/update-slot/:slotId',verifyToken('tutor'), updateSlot);
 router.put('/update-session/:sessionId',verifyToken('tutor'), updateSession);
 
-
-
+router.get('/students', verifyToken('tutor'), fetchStudents);
+router.post('/create-assignment',verifyToken('tutor'), createAssignment);
+router.get('/submitted-answers/:tutorId',verifyToken('tutor'), getSubmittedAssignments);
 
 router.get('/notifications/:userId',verifyToken('tutor'),getTutorNotifications)
 router.put('/cancel/:sessionId',verifyToken('tutor'), cancelSession);
+
+router.get('/tutor-revenue/:tutorId',verifyToken('tutor'), getTutorRevenue);
+
+
 
 
 

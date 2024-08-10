@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Modal, Textarea, Button } from 'flowbite-react';
+import { FaStar } from 'react-icons/fa'; // Importing star icon from react-icons
 
 const ReviewModal = ({ show, onClose, onSubmit }) => {
   const [review, setReview] = useState('');
   const [rating, setRating] = useState(5); // Assuming a 5-star rating system
+  const [hover, setHover] = useState(null); // For hover effect on stars
 
   const handleSubmit = () => {
     onSubmit({ review, rating });
@@ -26,17 +28,20 @@ const ReviewModal = ({ show, onClose, onSubmit }) => {
             onChange={(e) => setReview(e.target.value)}
           />
           <div className="flex items-center gap-2">
-            <label htmlFor="rating">Rating:</label>
-            <select
-              id="rating"
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="p-2 border rounded"
-            >
+            <label>Rating:</label>
+            <div className="flex">
               {[1, 2, 3, 4, 5].map((star) => (
-                <option key={star} value={star}>{star}</option>
+                <FaStar
+                  key={star}
+                  size={30}
+                  className="cursor-pointer"
+                  color={star <= (hover || rating) ? '#ffc107' : '#e4e5e9'}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHover(star)}
+                  onMouseLeave={() => setHover(null)}
+                />
               ))}
-            </select>
+            </div>
           </div>
         </div>
       </Modal.Body>

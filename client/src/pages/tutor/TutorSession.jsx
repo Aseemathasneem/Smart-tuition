@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, useLocation } from 'react-router-dom';
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
 import { apiCall } from '../../api/apiCalls';
@@ -8,6 +9,8 @@ export default function TutorSession() {
   const { sessionId } = useParams();
   const location = useLocation();
   const { studentId, tutorId } = location.state || {};
+  const currentUser = useSelector((state) => state.tutor.currentUser);
+  const tutorName = currentUser ? currentUser.name : 'Tutor';
 
   useEffect(() => {
     const appID = Number(import.meta.env.VITE_APP_ZEGO_APP_ID);
@@ -17,7 +20,7 @@ export default function TutorSession() {
       serverSecret,
       sessionId,
       sessionId, // Using slotId as userId
-      'Tutor'
+      tutorName
     );
 
     const zp = ZegoUIKitPrebuilt.create(kitToken);

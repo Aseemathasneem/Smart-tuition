@@ -16,7 +16,8 @@ import {
   unblockTutor,
   getApprovalRequests,
   approveRequest,
-  rejectRequest
+  rejectRequest,
+  getAdminRevenue
 } from '../controllers/admin.controller.js';
 import { verifyToken } from '../../middleware/authMiddleware.js';
 import { addSubject, deleteSubject, getSubjects, updateSubject } from '../controllers/subject.controller.js';
@@ -46,6 +47,7 @@ router.get('/subjects', getSubjects);
 router.post('/add-subject',verifyToken('admin'), addSubject);
 router.put('/update-subject/:id', verifyToken('admin'),updateSubject);
 router.delete('/delete-subject/:id',verifyToken('admin'),deleteSubject);
+router.get('/admin-revenue',verifyToken('admin'), getAdminRevenue);
 
 
 export default router;

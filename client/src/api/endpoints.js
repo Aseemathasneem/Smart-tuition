@@ -16,6 +16,8 @@ const endpoints = {
     GET_STUDENT_NOTIFICATIONS: (userId) => `/student/notifications/${userId}`,
    
     MARK_ATTENDANCE: (sessionId) => `/sessions/${sessionId}/leave`,
+    FETCH_STUDENT_ASSIGNMENTS: '/student/assignments',
+    SUBMIT_ASSIGNMENT_ANSWER: '/student/submit-answer',
 
 
    TUTOR_SIGN_UP: '/tutor/signup',
@@ -35,7 +37,11 @@ const endpoints = {
     UPDATE_SESSION:'/tutor/update-session',
     CANCEL_SESSION: (sessionId) => `/tutor/cancel/${sessionId}`,
     GET_TUTOR_NOTIFICATIONS: (userId) => `/tutor/notifications/${userId}`,
-
+    POST_ASSIGNMENT: '/tutor/post-assignment',
+    FETCH_STUDENTLIST :'/tutor/students',
+    CREATE_ASSIGNMENT: '/tutor/create-assignment',
+    FETCH_SUBMITTED_ASSIGNMENTS:'/tutor/submitted-answers',
+    GET_TUTOR_REVENUE: (tutorId) => `/tutor/tutor-revenue/${tutorId}`,
 
 
 
@@ -58,6 +64,7 @@ const endpoints = {
   ADD_SUBJECT : '/admin/add-subject',
   UPDATE_SUBJECT:'/admin/update-subject',
   DELETE_SUBJECT :'/admin/delete-subject',
+  GET_ADMIN_REVENUE:'/admin/admin-revenue',
 
 
    

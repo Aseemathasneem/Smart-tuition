@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchTutors } from '../../redux/tutor/tutorSlice';
 import { TextInput, Button } from 'flowbite-react'; 
+import GradientButton from '../../components/GradientButton';
 
 const TutorsList = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const TutorsList = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button className="ml-2">Search</Button>
+          <GradientButton className="ml-2">Search</GradientButton>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTutors.map((tutor) => (
@@ -49,7 +50,7 @@ const TutorsList = () => {
               <p className="text-sm mt-2"><strong></strong> {tutor.bio}</p>
               <p className="text-sm mt-2"><strong>Classes:</strong> {tutor.classes.join(', ')}</p>
               <p className="text-sm mt-2"><strong>Subjects:</strong> {tutor.subjects.join(', ')}</p>
-              <Button className="mt-4 w-full" onClick={() => handleViewDetails(tutor._id)}>View Details</Button>
+              <GradientButton className="mt-4 w-full" onClick={() => handleViewDetails(tutor._id)}>View Details</GradientButton>
             </div>
           ))}
         </div>

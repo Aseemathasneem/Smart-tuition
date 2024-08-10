@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
 import { apiCall } from '../../api/apiCalls';
 import endpoints from '../../api/endpoints';
 
@@ -11,7 +12,16 @@ const initialState = {
   tutors: [],
   bookedSlots:[],
   availableSlots: [],
+  students: [],
 };
+
+export const fetchStudents = createAsyncThunk('tutor/fetchStudents', async () => {
+ 
+  const response = await apiCall('get', endpoints.FETCH_STUDENTLIST);
+  console.log(response.data);
+  
+  return response.data;
+});
 
 export const fetchAvailableSlots = createAsyncThunk('tutor/fetchAvailableSlots', async (tutorId) => {
   const response = await apiCall('get',`${endpoints.FETCH_AVAILABLE_SLOTS}/${tutorId}`);
@@ -250,7 +260,21 @@ const tutorSlice = createSlice({
       .addCase(updateSession.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(fetchStudents.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudents.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = action.payload;
+      })
+      .addCase(fetchStudents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
+
+
+
 
 
 

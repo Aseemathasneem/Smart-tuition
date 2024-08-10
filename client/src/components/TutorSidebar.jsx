@@ -6,6 +6,7 @@ import {
   HiCalendar,
   HiChartPie,
   HiClock,
+  HiPlusCircle
 } from "react-icons/hi";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -25,7 +26,7 @@ export default function TutorSidebar() {
     <Sidebar className="w-full md:w-56">
       <Sidebar.Items>
         <Sidebar.ItemGroup className="flex flex-col gap-1">
-          {/* <Link to="/dashboard?tab=dash">
+          <Link to="/tutor/dashboard?tab=dash">
             <Sidebar.Item
               active={tab === "dash" || !tab}
               icon={HiChartPie}
@@ -33,7 +34,7 @@ export default function TutorSidebar() {
             >
               Dashboard
             </Sidebar.Item>
-          </Link> */}
+          </Link>
 
           <Link to="/tutor/dashboard?tab=apply_for_approval">
             <Sidebar.Item
@@ -82,6 +83,24 @@ export default function TutorSidebar() {
           as="div"
         >
           View Available Slots
+        </Sidebar.Item>
+      </Link>
+      <Link to="/tutor/dashboard?tab=post-assignment">
+        <Sidebar.Item
+          active={tab === "post-assignment"}
+          icon={HiPlusCircle}
+          as="div"
+        >
+          Post Assignment
+        </Sidebar.Item>
+      </Link>
+      <Link to="/tutor/dashboard?tab=submitted-assignments">
+        <Sidebar.Item
+          active={tab === "submitted-assignments"}
+          icon={HiDocumentReport}
+          as="div"
+        >
+          Submitted Answers
         </Sidebar.Item>
       </Link>
         </Sidebar.ItemGroup>

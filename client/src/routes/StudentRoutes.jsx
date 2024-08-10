@@ -16,6 +16,7 @@ import StudentSession from '../pages/student/StudentSession';
 
 import StudentBookedSessions from '../pages/student/BookedSessions';
 import StudentNotifications from '../pages/student/Studentnotifications';
+import StudentAssignments from '../pages/student/StudentAssignments';
 
 
 const StudentRoutes = () => (
@@ -34,6 +35,7 @@ const StudentRoutes = () => (
       <Route path="booked_sessions" element={<StudentBookedSessions/>} />
       <Route path="notifications" element={<StudentNotifications/>} />
       <Route path="session/:sessionId" element={<StudentSession />} />
+      <Route path="assignments" element={<StudentAssignments />} />
      
   </Route>
   </Routes>

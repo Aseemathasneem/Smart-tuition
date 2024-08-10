@@ -7,7 +7,11 @@ export default {
     flowbite.content(),
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'], // Replace 'Inter' with your chosen font
+      },
+    },
   },
   plugins: [
     flowbite.plugin()

@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import Session from '../../domain/session.model.js';
 import Notification from '../../domain/notification.model.js'
 import Slot from '../../domain/slot.model.js'
+import Payment from '../../domain/payment.model.js'; 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -29,6 +30,7 @@ export const createCheckoutSession = async (req, res) => {
         tutorId: sessionDetails.tutorId,
         studentId: sessionDetails.studentId,
         slotId: sessionDetails.slotId,
+        amount ,
       },
     });
 
@@ -55,7 +57,7 @@ export const handleStripeWebhook = async (req, res) => {
     const session = event.data.object;
 
     try {
-      const { tutorId, studentId, slotId } = session.metadata;
+      const { tutorId, studentId, slotId , amount } = session.metadata;
 
       const bookedSession = await Session.findOne({
         tutorId,
@@ -77,10 +79,28 @@ export const handleStripeWebhook = async (req, res) => {
          return res.status(404).json({ message: 'Slot not found' });
        }
 
+             // Calculate platform fee and total amount
+      const platformFee = 20;  // Platform fee in rupees
+      const tutoringFee = parseFloat(amount) - platformFee;  // Calculate tutoring fee
+      const totalAmount = parseFloat(amount);  // Total amount in rupees
+
+
       // Update the session status to confirmed and paymentStatus to completed
       bookedSession.status = 'confirmed';
       bookedSession.paymentStatus = 'completed';
       await bookedSession.save();
+
+       // Create and save the payment record
+       const paymentRecord = new Payment({
+        studentId,
+        tutorId,
+        sessionId: bookedSession._id,
+        tutoringFee,
+        platformFee,
+        totalAmount,
+        paymentStatus: 'completed',
+      });
+      await paymentRecord.save();
 
       // Create and save notifications
       const tutorNotification = new Notification({

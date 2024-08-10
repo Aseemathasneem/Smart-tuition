@@ -11,8 +11,12 @@ import { signout,
   getTutorDetails,
   bookSlot,
   fetchBookedSlots,
-  getNotifications
+  getNotifications,
+  getAssignmentsByStudent,
+  submitAnswer
   } from '../controllers/student.controller.js'
+  import uploadAnswer from '../../middleware/uploadAnswers.js';
+
 
   import { verifyToken } from '../../middleware/authMiddleware.js';
 import { fetchReview, submitReview } from '../controllers/review.controller.js';
@@ -36,6 +40,10 @@ router.get('/booked-slots/:studentId',verifyToken('student'),fetchBookedSlots)
 router.post('/submit_review',verifyToken('student'),submitReview)
 router.get('/reviews/tutor/:tutorId',verifyToken('student'),fetchReview)
 router.get('/notifications/:userId',verifyToken('student'),getNotifications)
+router.get('/assignments/:studentId', verifyToken('student'), getAssignmentsByStudent);
+router.post('/submit-answer', verifyToken('student'),uploadAnswer, submitAnswer);
+
+
 
 
 

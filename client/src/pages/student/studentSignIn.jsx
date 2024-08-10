@@ -21,6 +21,12 @@ export default function StudentSignIn() {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'student') {
+      navigate('/student/home'); 
+    }
+  }, [currentUser, navigate]);
+
   
 
   const handleChange = (e) => {
