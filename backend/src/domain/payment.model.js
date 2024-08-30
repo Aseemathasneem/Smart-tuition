@@ -30,8 +30,12 @@ const paymentSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'completed', 'failed','refunded'],
     default: 'pending',
+  },
+  paymentIntentId: {
+    type: String,  // Field to store the paymentIntentId
+    required: true,
   },
   createdAt: {
     type: Date,

@@ -41,7 +41,7 @@ const TutorHeader = () => {
   };
 
   return (
-    <Navbar className='border-b-2'>
+    <Navbar className='border-b-2 bg-blue-200'>
       <Link to='/'>
         <img src='/images/logo.jpeg' alt='Logo' className='h-14 w-16' />
       </Link>

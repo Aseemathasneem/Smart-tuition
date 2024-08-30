@@ -20,7 +20,9 @@ import StudentAssignments from '../pages/student/StudentAssignments';
 
 
 const StudentRoutes = () => (
+ 
   <Routes>
+   
     <Route path="sign-in" element={<StudentSignIn />} />
     <Route path="sign-up" element={<StudentSignUp />} />
     <Route path="otp-verification" element={<StudentOtpVerification />} />
@@ -36,9 +38,11 @@ const StudentRoutes = () => (
       <Route path="notifications" element={<StudentNotifications/>} />
       <Route path="session/:sessionId" element={<StudentSession />} />
       <Route path="assignments" element={<StudentAssignments />} />
-     
+      
   </Route>
+  
   </Routes>
+ 
 );
 
 export default StudentRoutes;

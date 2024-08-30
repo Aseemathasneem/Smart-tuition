@@ -2,6 +2,7 @@ import { Button } from 'flowbite-react';
 import React from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import GradientButton from '../../components/GradientButton';
 
 const Success = () => {
     const navigate = useNavigate();
@@ -17,12 +18,12 @@ const Success = () => {
         </div>
         <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">Payment Successful!</h2>
         <p className="text-gray-800 dark:text-gray-200">Thank you for your payment!</p>
-        <Button
+        <GradientButton
           onClick={handleContinue}
           className="mt-4 w-full"
         >
           Continue
-        </Button>
+        </GradientButton>
       </div>
     </div>
   );

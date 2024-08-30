@@ -17,7 +17,11 @@ import {
   getApprovalRequests,
   approveRequest,
   rejectRequest,
-  getAdminRevenue
+  getAdminRevenue,
+  getTotalStudents,
+  getTotalTutors,
+  getAdminPaymentDetails,
+ 
 } from '../controllers/admin.controller.js';
 import { verifyToken } from '../../middleware/authMiddleware.js';
 import { addSubject, deleteSubject, getSubjects, updateSubject } from '../controllers/subject.controller.js';
@@ -48,6 +52,12 @@ router.post('/add-subject',verifyToken('admin'), addSubject);
 router.put('/update-subject/:id', verifyToken('admin'),updateSubject);
 router.delete('/delete-subject/:id',verifyToken('admin'),deleteSubject);
 router.get('/admin-revenue',verifyToken('admin'), getAdminRevenue);
+router.get('/total-students',verifyToken('admin'), getTotalStudents);
+router.get('/total-tutors',verifyToken('admin'), getTotalTutors);
+router.get('/payment-details',verifyToken('admin'),getAdminPaymentDetails );
+
+
+
 
 
 export default router;

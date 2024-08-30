@@ -1,43 +1,84 @@
 import React, { useState } from 'react';
+import GradientButton from '../../components/GradientButton'; 
 import { useSelector } from 'react-redux';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { Button, Card, Modal, Label } from 'flowbite-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
-import { Button, Card } from 'flowbite-react';
 import { apiCall } from '../../api/apiCalls';
 import endpoints from '../../api/endpoints';
-import { useToast } from '../../contexts/ToastContext'; // Adjust the import path according to your project structure
+import { useToast } from '../../contexts/ToastContext';
+import { v4 as uuidv4 } from 'uuid';
 
 const ScheduleAvailability = () => {
-  const showToast = useToast(); // Get the showToast function from the context
-  const [startDate, setStartDate] = useState(new Date());
-  const [startTime, setStartTime] = useState('10:00');
-  const [endTime, setEndTime] = useState('18:00');
+  const showToast = useToast();
   const [availability, setAvailability] = useState([]);
-  
-  const currentUser = useSelector(state => state.tutor.currentUser);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+
+  const currentUser = useSelector((state) => state.tutor.currentUser);
   const tutorId = currentUser?._id;
 
-  const handleAddAvailability = () => {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    
-    if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
-      showToast('End time must be later than start time', 'error');
-      return;
-    }
-
-    setAvailability([
-      ...availability,
-      { date: startDate, startTime, endTime },
-    ]);
+  const formatTime = (time) => {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
   };
 
-  const handleRemoveAvailability = (index) => {
-    const newAvailability = availability.filter((_, i) => i !== index);
-    setAvailability(newAvailability);
-    showToast('Slot deleted successfully', 'success'); // Show toast when a slot is removed
+  const handleDateClick = (info) => {
+    setSelectedDate(info.dateStr);
+    setIsModalOpen(true);
+  };
+
+  const handleAddAvailability = () => {
+    if (!startTime || !endTime) {
+      showToast('Please select both start and end times', 'error');
+      return;
+    }
+  
+    if (startTime >= endTime) {
+      showToast('Start time must be earlier than end time', 'error');
+      return;
+    }
+  
+    // Combine selected date with startTime and endTime for accurate comparison
+    const selectedStartDateTime = new Date(selectedDate);
+    selectedStartDateTime.setHours(startTime.getHours(), startTime.getMinutes(), startTime.getSeconds());
+  
+    const selectedEndDateTime = new Date(selectedDate);
+    selectedEndDateTime.setHours(endTime.getHours(), endTime.getMinutes(), endTime.getSeconds());
+  
+    const now = new Date();
+  
+    if (selectedStartDateTime < now || selectedEndDateTime < now) {
+      showToast('Selected date and time must be in the future', 'error');
+      return;
+    }
+  
+    const newEvent = {
+      id: uuidv4(),
+      title: `${formatTime(startTime)} - ${formatTime(endTime)}`,
+      start: `${selectedDate}T${formatTime(startTime)}`,
+      end: `${selectedDate}T${formatTime(endTime)}`,
+      allDay: false,
+    };
+  
+    setAvailability((prevAvailability) => [...prevAvailability, newEvent]);
+    setIsModalOpen(false);
+  };
+  
+
+  const handleEventClick = (info) => {
+    if (window.confirm(`Are you sure you want to delete this availability?`)) {
+      const newAvailability = availability.filter((event) => event.id !== info.event.id);
+      setAvailability(newAvailability);
+      showToast('Availability removed successfully', 'success');
+    }
   };
 
   const handleSaveAvailability = async () => {
@@ -67,80 +108,79 @@ const ScheduleAvailability = () => {
           <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-6 max-w-xl w-full">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Set Schedule Availability</h2>
             <div className="mb-4">
-              <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
-                Select the time periods you are available for tutoring on the chosen date. Note: Your availability will be divided into 1-hour slots for each session.
+              <p className="text-sm mb-2 text-red-500 dark:text-gray-300">
+                Click on the calendar to add your available slots. Note: Your availability will be divided into hourly slots for each session. You can also schedule single slots.
               </p>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Select Date:</label>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                 dateFormat="dd/MM/yy"
-                className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              />
-            </div>
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              events={availability}
+              dateClick={handleDateClick}
+              eventClick={handleEventClick}
+              editable={true}
+              selectable={true}
+              eventTimeFormat={{
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short',
+              }}
+            />
 
-            <div className="mb-4">
-              <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Start Time:</label>
-              <TimePicker
-                onChange={setStartTime}
-                value={startTime}
-                className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                clockIcon={null}
-                disableClock={true}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">End Time:</label>
-              <TimePicker
-                onChange={setEndTime}
-                value={endTime}
-                className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                clockIcon={null}
-                disableClock={true}
-              />
-            </div>
-
-            <Button
-              onClick={handleAddAvailability}
-              className="text-white px-4 py-2 rounded-md"
-            >
-              Add Availability
-            </Button>
-
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Your Available Time Period:</h3>
-              
-              <ul>
-                {availability.map((slot, index) => (
-                  <li key={index} className="mb-2 flex justify-between items-center text-gray-900 dark:text-white">
-                    <span>{`Date: ${slot.date.toLocaleDateString()}, Start: ${slot.startTime}, End: ${slot.endTime}`}</span>
-                    <Button
-                      onClick={() => handleRemoveAvailability(index)}
-                      color="failure"
-                      className="ml-4 px-2 py-1 rounded-md"
-                    >
-                      Remove
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Button
+            <GradientButton
               onClick={handleSaveAvailability}
               className="text-white px-4 py-2 rounded-md mt-4"
             >
               Save Availability
-            </Button>
+            </GradientButton>
           </div>
         </div>
       </Card>
+
+      {/* Modal for Time Picker */}
+      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal.Header>Select Time</Modal.Header>
+        <Modal.Body>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="startTime">Start Time</Label>
+              <DatePicker
+                selected={startTime}
+                onChange={(date) => setStartTime(date)}
+                showTimeSelect
+                showTimeSelectOnly
+                timeIntervals={15}
+                timeCaption="Start Time"
+                dateFormat="h:mm aa"
+                className="w-full mt-2 p-2 border rounded"
+              />
+            </div>
+            <div>
+              <Label htmlFor="endTime">End Time</Label>
+              <DatePicker
+                selected={endTime}
+                onChange={(date) => setEndTime(date)}
+                showTimeSelect
+                showTimeSelectOnly
+                timeIntervals={15}
+                timeCaption="End Time"
+                dateFormat="h:mm aa"
+                className="w-full mt-2 p-2 border rounded"
+              />
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleAddAvailability}>Add Availability</Button>
+          <Button color="gray" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
 export default ScheduleAvailability;
+

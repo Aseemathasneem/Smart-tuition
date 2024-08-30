@@ -14,6 +14,7 @@ const endpoints = {
     STUDENT_SUBMIT_REVIEW : '/student/submit_review',
     GET_TUTOR_REVIEWS: (tutorId) => `/student/reviews/tutor/${tutorId}`,
     GET_STUDENT_NOTIFICATIONS: (userId) => `/student/notifications/${userId}`,
+    GET_SLOTS_BY_DATE: (tutorId) => `/student/get_slot_byDate/${tutorId}`,
    
     MARK_ATTENDANCE: (sessionId) => `/sessions/${sessionId}/leave`,
     FETCH_STUDENT_ASSIGNMENTS: '/student/assignments',
@@ -42,6 +43,13 @@ const endpoints = {
     CREATE_ASSIGNMENT: '/tutor/create-assignment',
     FETCH_SUBMITTED_ASSIGNMENTS:'/tutor/submitted-answers',
     GET_TUTOR_REVENUE: (tutorId) => `/tutor/tutor-revenue/${tutorId}`,
+    GET_STUDENT_COUNT_BY_TUTOR: (tutorId) => `/tutor/distinct-students/${tutorId}`,
+    GET_TUTOR_HOURS: (tutorId) => `/tutor/tutor-hours/${tutorId}`,
+    GET_TUTOR_PAYMENT_DETAILS:(tutorId) => `/tutor/tutor-payments/${tutorId}`,
+    GRADE_SUBMISSION:'/tutor/submissions',
+    VERIFY_TOKEN: '/tutor/verify-token',
+
+
 
 
 
@@ -64,7 +72,11 @@ const endpoints = {
   ADD_SUBJECT : '/admin/add-subject',
   UPDATE_SUBJECT:'/admin/update-subject',
   DELETE_SUBJECT :'/admin/delete-subject',
-  GET_ADMIN_REVENUE:'/admin/admin-revenue',
+  GET_TOTAL_REVENUE:'/admin/admin-revenue',
+  GET_TOTAL_STUDENTS: '/admin/total-students',
+  GET_TOTAL_TUTORS: '/admin/total-tutors',
+  GET_ALL_PAYMENT_DETAILS:'/admin/payment-details',
+  
 
 
    

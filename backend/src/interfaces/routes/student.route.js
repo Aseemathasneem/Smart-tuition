@@ -13,7 +13,8 @@ import { signout,
   fetchBookedSlots,
   getNotifications,
   getAssignmentsByStudent,
-  submitAnswer
+  submitAnswer,
+  getSlotsByDate
   } from '../controllers/student.controller.js'
   import uploadAnswer from '../../middleware/uploadAnswers.js';
 
@@ -35,6 +36,8 @@ router.post('/signout', signout);
 router.get('/user-info', verifyToken('student'), getStudentData);
 router.get('/approved-tutors',verifyToken('student'),  getApprovedTutors);
 router.get('/tutors/:tutorId',verifyToken('student'), getTutorDetails);
+router.get('/get_slot_byDate/:tutorId',verifyToken('student'), getSlotsByDate)
+
 router.post('/book_slot',verifyToken('student'), bookSlot);
 router.get('/booked-slots/:studentId',verifyToken('student'),fetchBookedSlots)
 router.post('/submit_review',verifyToken('student'),submitReview)

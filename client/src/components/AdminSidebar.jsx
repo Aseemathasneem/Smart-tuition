@@ -6,11 +6,11 @@ import { Link } from 'react-router-dom';
 
 const AdminSidebar = () => {
   return (
-    <Sidebar>
+    <Sidebar >
       <Sidebar.Logo>
         Admin Dashboard
-      </Sidebar.Logo>
-      <Sidebar.Items>
+      </Sidebar.Logo> 
+      <Sidebar.Items >
         <Sidebar.ItemGroup>
           <Sidebar.Item as={Link} to="/admin/students" icon={HiUserGroup}>
             Students

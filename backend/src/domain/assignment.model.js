@@ -11,6 +11,8 @@ const assignmentSchema = new mongoose.Schema({
   description: { type: String, required: true },
   instructions: { type: String, required: true },
   grade: { type: Number, required: true },
+  tutorAssignedGrade: { type: Number }, 
+  remarks: { type: String },
 }, { timestamps: true });
 
 const Assignment = mongoose.model('Assignment', assignmentSchema);

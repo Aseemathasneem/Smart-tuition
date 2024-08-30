@@ -9,7 +9,7 @@ export const createAssignment = createAsyncThunk('assignment/createAssignment', 
 
 export const fetchStudentAssignments = createAsyncThunk('assignment/fetchStudentAssignments', async (studentId) => {
   const response = await apiCall('get', `${endpoints.FETCH_STUDENT_ASSIGNMENTS}/${studentId}`);
-  console.log('Assignments fetched:', response.data);
+ 
   
   return response.data;
 });
@@ -26,6 +26,20 @@ export const fetchSubmittedAssignments = createAsyncThunk('assignment/fetchSubmi
   console.log('Fetched submitted assignments:', response.data);
   return response.data;
 });
+
+
+export const gradeSubmission = createAsyncThunk(
+  'assignment/gradeSubmission',
+  async ({ submissionId, grade, remarks }) => {
+    const response = await apiCall('patch', `${endpoints.GRADE_SUBMISSION}/${submissionId}`, {
+      grade,
+      remarks,  // Include remarks in the request body
+      status: 'verified'
+    });
+    return response.data;
+  }
+);
+
 
 const assignmentSlice = createSlice({
   name: 'assignment',
@@ -77,6 +91,19 @@ const assignmentSlice = createSlice({
       .addCase(fetchSubmittedAssignments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(gradeSubmission.fulfilled, (state, action) => {
+        const { submissionId, grade } = action.payload;
+        const assignment = state.submittedAssignments.find(assignment =>
+          assignment.submissions.some(submission => submission._id === submissionId)
+        );
+        if (assignment) {
+          const submission = assignment.submissions.find(sub => sub._id === submissionId);
+          if (submission) {
+            submission.grade = grade;
+            submission.status = 'verified';
+          }
+        }
       });
 
 

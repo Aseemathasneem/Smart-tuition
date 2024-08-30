@@ -1,4 +1,5 @@
-// routes/tutor.route.js
+
+import Tutor from '../../domain/tutor.model.js';
 import express from 'express';
 import { 
   tutorSignUp, 
@@ -20,7 +21,11 @@ import {
   fetchStudents,
   createAssignment,
   getSubmittedAssignments,
-  getTutorRevenue
+  getTutorRevenue,
+  gradeSubmission,
+  getDistinctStudentsCount,
+  getTotalTutoringHours,
+  getTutorPaymentDetails
 
 } from '../controllers/tutor.controller.js';
 import { verifyToken} from '../../middleware/authMiddleware.js';
@@ -55,11 +60,17 @@ router.put('/update-session/:sessionId',verifyToken('tutor'), updateSession);
 router.get('/students', verifyToken('tutor'), fetchStudents);
 router.post('/create-assignment',verifyToken('tutor'), createAssignment);
 router.get('/submitted-answers/:tutorId',verifyToken('tutor'), getSubmittedAssignments);
+router.patch('/submissions/:submissionId',verifyToken('tutor'),gradeSubmission);
 
 router.get('/notifications/:userId',verifyToken('tutor'),getTutorNotifications)
 router.put('/cancel/:sessionId',verifyToken('tutor'), cancelSession);
 
 router.get('/tutor-revenue/:tutorId',verifyToken('tutor'), getTutorRevenue);
+router.get('/distinct-students/:tutorId',verifyToken('tutor'), getDistinctStudentsCount);
+router.get('/tutor-hours/:tutorId',verifyToken('tutor'),  getTotalTutoringHours);
+router.get('/tutor-payments/:tutorId',verifyToken('tutor'),  getTutorPaymentDetails);
+
+
 
 
 

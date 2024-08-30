@@ -1,62 +1,97 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
 import { fetchTutors } from '../../redux/tutor/tutorSlice';
-import { TextInput, Button } from 'flowbite-react'; 
-import GradientButton from '../../components/GradientButton';
+import TutorCard from "../../components/TutorCard";
+import { FindTutorForm } from "../../components/FindTutorForm";
+import { Pagination } from 'flowbite-react';
 
-const TutorsList = () => {
-  const navigate = useNavigate();
+export default function TutorsList() {
   const dispatch = useDispatch();
   const { tutors, loading, error } = useSelector((state) => state.tutor);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTutors, setFilteredTutors] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tutorsPerPage = 4;
 
   useEffect(() => {
     dispatch(fetchTutors());
   }, [dispatch]);
 
-  const filteredTutors = tutors.filter(tutor =>
-    tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tutor.classes.some(cls => cls.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    tutor.subjects.some(sub => sub.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  useEffect(() => {
+    setFilteredTutors(tutors);
+  }, [tutors]);
 
-  const handleViewDetails = (tutorId) => {
-    navigate(`/student/tutor_details/${tutorId}`);
+  const handleFilter = (classInput, subjectInput) => {
+    const filtered = tutors.filter(
+      (tutor) =>
+        tutor.classes.some((cls) =>
+          cls.toLowerCase().includes(classInput.toLowerCase())
+        ) && tutor.subjects.toLowerCase().includes(subjectInput.toLowerCase())
+    );
+    setFilteredTutors(filtered);
+    setCurrentPage(1); // Reset to the first page after filtering
+  };
+
+  const handleSort = (criteria) => {
+    setFilteredTutors(sortTutors(criteria, tutors));
+    setCurrentPage(1); // Reset to the first page after sorting
+  };
+
+  const indexOfLastTutor = currentPage * tutorsPerPage;
+  const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
+  const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  if (!filteredTutors.length) return <div>No tutors found.</div>;
+  if (!currentTutors.length) return <div>No tutors found.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-gray-200">
-      <div className="container mx-auto py-10 px-4">
-        <div className="my-2 flex justify-center">
-          <TextInput
-            type="text"
-            placeholder="Find Tutor"
-            className="w-1/2 dark:bg-gray-800 dark:text-gray-200"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <GradientButton className="ml-2">Search</GradientButton>
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <FindTutorForm onFilter={handleFilter} />
+          <div className="flex items-center space-x-2">
+            <label htmlFor="sort" className="text-gray-700 dark:text-gray-300">
+              Sort by:
+            </label>
+            <select
+              id="sort"
+              className="p-2 border rounded-md"
+              onChange={(e) => handleSort(e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="rating">Rating</option>
+              <option value="experience">Experience</option>
+            </select>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTutors.map((tutor) => (
-            <div key={tutor._id} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 h-full">
-              <img src={tutor.profilePicture} alt={`${tutor.name}'s profile`} className="h-32 w-32 mx-auto rounded-full" />
-              <h3 className="text-xl font-semibold mt-4">{tutor.name}</h3>
-              <p className="text-sm mt-2"><strong></strong> {tutor.bio}</p>
-              <p className="text-sm mt-2"><strong>Classes:</strong> {tutor.classes.join(', ')}</p>
-              <p className="text-sm mt-2"><strong>Subjects:</strong> {tutor.subjects.join(', ')}</p>
-              <GradientButton className="mt-4 w-full" onClick={() => handleViewDetails(tutor._id)}>View Details</GradientButton>
-            </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+          {currentTutors.map((tutor, index) => (
+            <TutorCard key={index} tutor={tutor} />
           ))}
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredTutors.length / tutorsPerPage)}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default TutorsList;
+function sortTutors(criteria, tutors) {
+  if (criteria === "rating") {
+    return [...tutors].sort((a, b) => b.rating - a.rating);
+  } else if (criteria === "experience") {
+    return [...tutors].sort((a, b) => b.experience - a.experience);
+  }
+  return tutors;
+}

@@ -75,6 +75,20 @@ const BookedSlots = () => {
     }));
   };
 
+  // Function to check if the session is currently active
+  const isSessionActive = (date, startTime, endTime) => {
+    const dateOnly = date.split('T')[0]; // '2024-08-28'
+    
+    // Combine the date with startTime and endTime
+    const sessionStartDateTime = new Date(`${dateOnly}T${startTime}:00`);
+  const sessionEndDateTime = new Date(`${dateOnly}T${endTime}:00`);
+    const currentDateTime = new Date();
+  
+
+    
+    return currentDateTime >= sessionStartDateTime && currentDateTime <= sessionEndDateTime;
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -112,6 +126,7 @@ const BookedSlots = () => {
                       <Button
                         gradientDuoTone="greenToBlue"
                         onClick={() => handleStartSession(slot._id, slot.studentId._id, currentUser._id)}
+                        disabled={!isSessionActive(slot.slotId.date, slot.slotId.startTime, slot.slotId.endTime)}
                       >
                         Start Session
                       </Button>

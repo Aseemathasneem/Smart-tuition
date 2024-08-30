@@ -31,7 +31,7 @@ export const verifyToken = (role) => async (req, res, next) => {
     
     if (user.isBlocked) {
       res.clearCookie(cookieName);
-      return next(errorHandler(403, 'Your account is blocked. Please contact support.'));
+      return res.status(403).json({ message: 'Your account is blocked. Please contact support.', isBlocked: true });
     }
 
     if (req.user.role !== role) {

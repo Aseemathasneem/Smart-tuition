@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSubmittedAssignments } from '../../redux/assignment/assignmentSlice';
-import { Card, Button, Modal } from 'flowbite-react';
+import { fetchSubmittedAssignments, gradeSubmission } from '../../redux/assignment/assignmentSlice';
+import { Card, Button, Modal, TextInput } from 'flowbite-react';
+import GradientButton from '../../components/GradientButton';
+import { useToast } from '../../contexts/ToastContext';
 
 const TutorSubmittedAssignments = () => {
   const dispatch = useDispatch();
+  const showToast = useToast(); // Import the useToast hook
   const currentUser = useSelector(state => state.tutor.currentUser);
   const tutorId = currentUser?._id;
   const { submittedAssignments, loading, error } = useSelector(state => state.assignment);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
+  const [isGradeModalOpen, setIsGradeModalOpen] = useState(false);
   const [fileUrl, setFileUrl] = useState('');
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [grade, setGrade] = useState('');
+  const [remarks, setRemarks] = useState(''); 
 
   useEffect(() => {
     if (tutorId) {
@@ -17,14 +25,29 @@ const TutorSubmittedAssignments = () => {
     }
   }, [dispatch, tutorId]);
 
-  const openModal = (file) => {
+  const openFileModal = (file) => {
     setFileUrl(file);
-    setIsModalOpen(true);
+    setIsFileModalOpen(true);
   };
 
-  const handleVerify = (assignmentId) => {
-    // Implement the verification logic here
-    console.log(`Verifying assignment with ID: ${assignmentId}`);
+  const openGradeModal = (submission) => {
+    setSelectedSubmission(submission);
+    setIsGradeModalOpen(true);
+  };
+
+  const handleGradeSubmission = async () => {
+    if (selectedSubmission) {
+      await dispatch(gradeSubmission({ 
+        submissionId: selectedSubmission._id, 
+        grade, 
+        remarks 
+      }));
+      showToast('Mark submitted successfully', 'success');
+      setIsGradeModalOpen(false);
+      if (tutorId) {
+        dispatch(fetchSubmittedAssignments(tutorId));
+      }
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -53,12 +76,21 @@ const TutorSubmittedAssignments = () => {
                         <div key={submission._id} className="mt-2 p-2 border rounded">
                           <p><strong>Student:</strong> {submission.studentId.name}</p>
                           <p><strong>Submission Date:</strong> {new Date(submission.createdAt).toLocaleDateString()}</p>
-                          <p>
+                          <p className='mb-5'>
                             <strong>Answer File:</strong> 
-                            <a href="#"className="text-blue-600 underline" onClick={() => openModal(submission.file)}>
+                            <a href="#" className="text-blue-600 underline" onClick={() => openFileModal(submission.file)}>
                               View Answer file
                             </a>
                           </p>
+                          {submission.status === 'verified' ? (
+                            <GradientButton disabled>
+                              Verified
+                            </GradientButton>
+                          ) : (
+                            <GradientButton onClick={() => openGradeModal(submission)}>
+                              Grade Assignment
+                            </GradientButton>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -66,16 +98,14 @@ const TutorSubmittedAssignments = () => {
                     )}
                   </div>
                 </div>
-                <Button onClick={() => handleVerify(assignment._id)}>
-                  Verify Assignment
-                </Button>
               </div>
             </Card>
           ))
         )}
       </div>
 
-      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} size="4xl">
+      {/* File Viewing Modal */}
+      <Modal show={isFileModalOpen} onClose={() => setIsFileModalOpen(false)} size="4xl">
         <Modal.Header>Answer File</Modal.Header>
         <Modal.Body>
           <iframe
@@ -86,8 +116,38 @@ const TutorSubmittedAssignments = () => {
           ></iframe>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => setIsModalOpen(false)}>
+          <Button onClick={() => setIsFileModalOpen(false)}>
             Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Grading Modal */}
+      <Modal show={isGradeModalOpen} onClose={() => setIsGradeModalOpen(false)} size="md">
+        <Modal.Header>Grade Assignment</Modal.Header>
+        <Modal.Body>
+          <TextInput
+            label="Grade"
+            type="number"
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+            placeholder="Enter grade"
+          />
+          <TextInput
+            label="Remarks"
+            type="text"
+            value={remarks} 
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Enter remarks"
+            className="mt-4" 
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <GradientButton onClick={handleGradeSubmission}>
+            Submit Grade
+          </GradientButton>
+          <Button onClick={() => setIsGradeModalOpen(false)}>
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>

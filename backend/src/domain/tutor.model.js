@@ -55,14 +55,18 @@ const tutorSchema = new mongoose.Schema({
     type: [String],
   },
   subjects: {
-    type: [String],
+    type: String,
   },
   hourlyRate: {
     type: Number,
   },
- 
-  availableDays: {
+  syllabus: {
     type: [String],
+  },
+  experience: {
+    type: Number,  
+    required: true,
+    default: 0,  
   },
   bio: {
     type: String,
@@ -70,6 +74,7 @@ const tutorSchema = new mongoose.Schema({
   certificate: {
     type: String,
   },
+  rating: { type: Number, default: 0 },
  
  
 }, { timestamps: true });

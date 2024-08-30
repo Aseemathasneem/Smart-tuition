@@ -36,27 +36,30 @@ export const signout = (req, res, next) => {
     next(error);
   }
 };
-
 export const tutorProfileUpdate = async (req, res, next) => {
   try {
-    
     const tutorId = req.user.id; 
-    const { qualification, classes, subjects, hourlyRate, availableTime, availableDays, bio } = req.body;
-     
-    const certificate = req.file ? req.file.path : null;
-    
+    const { qualification,experience, classes, subjects, syllabus, hourlyRate, bio, profilePicture } = req.body;
+  console.log(req.body)
+    // Find the existing tutor profile
+    const tutor = await Tutor.findById(tutorId);
+
+    // Use the new profile picture URL from the frontend or keep the existing one
+    const updatedProfilePicture = profilePicture || tutor.profilePicture;
 
     // Update tutor profile details
     const updatedTutor = await Tutor.findByIdAndUpdate(
       tutorId,
       {
         qualification,
+        experience,
         classes,
         subjects,
         hourlyRate,
-        availableDays,
+        syllabus,
         bio,
-        certificate: certificate || undefined, // Directly use certificate path
+        certificate: req.file ? req.file.path : tutor.certificate, // Assuming certificate is optional
+        profilePicture: updatedProfilePicture,  // Update with Firebase URL
       },
       { new: true }
     );
@@ -113,16 +116,20 @@ export const saveAvailability = async (req, res) => {
     const newSlots = [];
 
     availability.forEach(slot => {
-      const { date, startTime, endTime } = slot;
-      const [startHour] = startTime.split(':').map(Number);
-      const [endHour] = endTime.split(':').map(Number);
+      const { start, end } = slot;
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+
+      const startHour = startDate.getHours();
+      const endHour = endDate.getHours();
+      const date = startDate.toISOString().split('T')[0]; // Extract the date part
 
       for (let hour = startHour; hour < endHour; hour++) {
         newSlots.push({
           tutorId,
           date,
-          startTime: `${hour}:00`,
-          endTime: `${hour + 1}:00`,
+          startTime: `${hour.toString().padStart(2, '0')}:00`,
+          endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
           status: 'available',
         });
       }
@@ -351,6 +358,78 @@ export const getSubmittedAssignments = async (req, res) => {
   }
 };
 
+
+
+
+
+export const gradeSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const { grade, remarks } = req.body;  // Receive remarks from request
+
+    // Find the submission by ID
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    // Update the submission with grade, remarks, and status
+    submission.grade = grade;
+    submission.remarks = remarks; 
+    submission.status = 'verified';
+    await submission.save();
+
+    // Update the related assignment with the tutor's assigned grade and status
+    const assignment = await Assignment.findById(submission.assignmentId);
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    assignment.tutorAssignedGrade = grade;
+    assignment.remarks = remarks; 
+    assignment.status = 'verified';  // Update the assignment status to verified
+    await assignment.save();
+
+    return res.status(200).json({ message: 'Submission graded successfully', submission });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+
+export const getDistinctStudentsCount = async (req, res) => {
+  const { tutorId } = req.params;
+   
+  try {
+    
+    const result = await Session.aggregate([
+      {
+        $match: {
+          tutorId: new mongoose.Types.ObjectId(tutorId),
+          studentAttended: true, // Filter only the sessions where the student attended
+          status: 'completed' // Optional: Filter only completed sessions
+        }
+      },
+      {
+        $group: {
+          _id: '$studentId', // Group by studentId
+        }
+      },
+      {
+        $count: 'distinctStudents' // Count the number of distinct studentIds
+      }
+    ]);
+
+    const distinctStudentsCount = result.length > 0 ? result[0].distinctStudents : 0;
+    
+    
+    res.status(200).json({ count: distinctStudentsCount });
+  } catch (error) {
+    console.error('Error fetching distinct students count:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export const getTutorRevenue = async (req, res) => {
   
   const { tutorId } = req.params;
@@ -378,5 +457,81 @@ export const getTutorRevenue = async (req, res) => {
   } catch (error) {
     
     res.status(500).json({ error: 'Failed to fetch tutor revenue', details: error.message });
+  }
+};
+
+export const getTotalTutoringHours = async (req, res) => {
+  const { tutorId } = req.params;
+
+  try {
+    // Count the total number of sessions that are marked as completed for the tutor
+    const totalSessions = await Session.countDocuments({ 
+      tutorId, 
+      status: 'completed',
+      tutorAttended: true 
+    });
+
+    // Assuming 1 session = 1 hour, totalSessions is the total number of hours
+    const totalTutoringHours = totalSessions;
+  
+    
+    
+    res.status(200).json({ totalTutoringHours });
+  } catch (error) {
+    console.error("Error calculating total tutoring hours:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+export const getTutorPaymentDetails = async (req, res) => {
+  const { tutorId } = req.params;
+  
+  
+  try {
+    // Fetch payments related to the tutor
+    const payments = await Payment.find({ tutorId })
+      .populate({
+        path: 'sessionId',
+        populate: {
+          path: 'slotId', // Populate the slot details
+          model: 'Slot',
+        },
+      })
+      .populate('studentId', 'name'); // Populate the student name
+
+    console.log("Payments fetched:", payments); // Log the fetched payments
+
+    // Check if payments were found
+    if (!payments || payments.length === 0) {
+      console.log("No payments found for this tutor.");
+      return res.status(404).json({ message: 'No payments found' });
+    }
+
+    // Map through the payments and extract required details
+    const paymentDetails = payments.map(payment => {
+      
+
+      // Ensure session and slot are populated
+      if (payment.sessionId && payment.sessionId.slotId) {
+        return {
+          studentName: payment.studentId.name,
+          sessionDate: payment.sessionId.slotId.date, // Assuming the slot model has a `date` field
+          startTime: payment.sessionId.slotId.startTime, // Assuming the slot model has a `startTime` field
+          endTime: payment.sessionId.slotId.endTime, // Assuming the slot model has an `endTime` field
+          tutoringFee: payment.tutoringFee,
+          paymentStatus: payment.paymentStatus,
+        };
+      } else {
+        console.log("Missing session or slot information for payment:", payment);
+        return null; // Return null if session or slot details are missing
+      }
+    }).filter(detail => detail !== null); // Filter out any null entries
+
+   
+    res.status(200).json(paymentDetails);
+  } catch (error) {
+    console.error("Error fetching payment details:", error);
+    res.status(500).json({ message: 'Error fetching payment details', error });
   }
 };

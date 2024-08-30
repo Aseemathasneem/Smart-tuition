@@ -4,6 +4,8 @@ const submissionSchema =  new mongoose.Schema({
     assignmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
     studentId: { type:mongoose. Schema.Types.ObjectId, ref: 'Student', required: true },
     file: { type: String, required: true },
+    grade: { type: Number },
+    remarks: { type: String },
     status: { type: String, enum: ['submitted', 'verified'], default: 'submitted' },
   }, { timestamps: true });
   

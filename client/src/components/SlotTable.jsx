@@ -1,6 +1,5 @@
-// SlotTable.js
 import React from "react";
-import { Button } from "flowbite-react";
+import GradientButton from "./GradientButton";
 
 const SlotTable = ({ slots, onBookSlot, booked = false }) => {
   return (
@@ -10,17 +9,29 @@ const SlotTable = ({ slots, onBookSlot, booked = false }) => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Date
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Start Time
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 End Time
               </th>
               {!booked && (
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Action
                 </th>
               )}
@@ -29,14 +40,22 @@ const SlotTable = ({ slots, onBookSlot, booked = false }) => {
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
             {slots.map((slot, index) => (
               <tr key={index}>
-                <td className="px-6 py-4 whitespace-nowrap">{new Date(slot.date).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{slot.startTime}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{slot.endTime}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {formatDate(slot.date)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {formatTime(slot.startTime)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {formatTime(slot.endTime)}
+                </td>
                 {!booked && (
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Button onClick={() => onBookSlot(slot)} color="blue" className="ml-4 px-2 py-0.5 rounded-md">
+                    <GradientButton
+                      onClick={() => onBookSlot(slot)}
+                     >
                       Book Slot
-                    </Button>
+                    </GradientButton>
                   </td>
                 )}
               </tr>
@@ -49,3 +68,24 @@ const SlotTable = ({ slots, onBookSlot, booked = false }) => {
 };
 
 export default SlotTable;
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatTime = (timeString) => {
+  const [hour, minute] = timeString.split(":");
+  const hours = parseInt(hour);
+  const minutes = parseInt(minute);
+
+  const period = hours >= 12 ? "PM" : "AM";
+  const formattedHour = hours % 12 || 12; // Convert 0 to 12 for midnight
+  const formattedMinute = minutes.toString().padStart(2, "0");
+
+  return `${formattedHour}:${formattedMinute} ${period}`;
+};
+

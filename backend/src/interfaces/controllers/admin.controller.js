@@ -2,7 +2,9 @@ import Admin from '../../domain/admin.model.js';
 import Student from '../../domain/student.model.js';
 import Tutor from '../../domain/tutor.model.js';
 import Payment from '../../domain/payment.model.js'
+import Assignment from '../../domain/assignment.model.js';
 import nodemailer from 'nodemailer';
+
 import ApprovalRequest from '../../domain/approvalRequest.model.js';
 import {
   signup,
@@ -229,5 +231,79 @@ export const getAdminRevenue = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch admin revenue', details: error.message });
   }
 };
+
+export const getTotalStudents = async (req, res) => {
+  try {
+    const count = await Student.countDocuments(); 
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching total students', error });
+  }
+};
+
+export const getTotalTutors = async (req, res) => {
+  try {
+    const count = await Tutor.countDocuments({ status: 'approved' }); 
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching total tutors', error });
+  }
+};
+
+export const getAdminPaymentDetails = async (req, res) => {
+  try {
+    // Fetch all payments
+    const payments = await Payment.find()
+      .populate({
+        path: 'sessionId',
+        populate: [
+          {
+            path: 'tutorId',
+            model: 'Tutor', // Assuming the tutor is in the User model
+            select: 'name', // Adjust field names based on your User model
+          },
+          {
+            path: 'studentId',
+            model: 'Student', // Assuming the student is in the User model
+            select: 'name', // Adjust field names based on your User model
+          },
+          {
+            path: 'slotId',
+            model: 'Slot',
+          }
+        ]
+      })
+      .select('tutoringFee platformFee totalAmount paymentStatus') // Select relevant fields from Payment model
+
+    // Check if payments were found
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ message: 'No payment details found' });
+    }
+
+    // Map through the payments and extract required details
+    const paymentDetails = payments.map(payment => {
+      if (payment.sessionId && payment.sessionId.slotId && payment.sessionId.tutorId && payment.sessionId.studentId) {
+        return {
+          sessionDate: payment.sessionId.slotId.date, // Assuming the slot model has a `date` field
+          studentName: payment.sessionId.studentId.name, // Assuming the User model has a `name` field
+          tutorName: payment.sessionId.tutorId.name, // Assuming the User model has a `name` field
+          tutoringFee: payment.tutoringFee,
+          platformFee: payment.platformFee,
+          totalAmount: payment.totalAmount,
+          paymentStatus: payment.paymentStatus,
+        };
+      } else {
+        return null; // Return null if session or slot details are missing
+      }
+    }).filter(detail => detail !== null); // Filter out any null entries
+
+    res.status(200).json(paymentDetails);
+  } catch (error) {
+    console.error("Error fetching payment details:", error);
+    res.status(500).json({ message: 'Error fetching payment details', error });
+  }
+};
+
+
 
 

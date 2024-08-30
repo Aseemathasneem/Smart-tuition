@@ -81,10 +81,11 @@ export default function ApprovalList() {
                 </div>
               </div>
               <div className="mb-4">
-                <p><strong>Subjects:</strong> {request.tutor.subjects?.join(', ')}</p>
-                <p><strong>Classes:</strong> {request.tutor.classes?.join(', ')}</p>
+                <p><strong>Subjects:</strong> {request.tutor.subjects}</p>
+                <p><strong>Classes for tutoring:</strong> {JSON.parse(request.tutor.classes).join(', ')}</p>
+               <p><strong>Syllabus:</strong> {JSON.parse(request.tutor.syllabus).join(', ')}</p>
+
                 <p><strong>Hourly Rate:</strong> Rs.{request.tutor.hourlyRate}</p>
-                <p><strong>Available Days:</strong> {availableDays.join(', ')}</p>
                 <p><strong>Bio:</strong> {request.tutor.bio}</p>
                 <a
                   href="#"

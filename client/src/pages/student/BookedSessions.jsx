@@ -19,6 +19,23 @@ const StudentBookedSessions = () => {
     navigate(`/student/session/${sessionId}`, { state: { studentId: currentUser._id, tutorId } });
   };
 
+  const isSessionActive = (date, startTime, endTime) => {
+   
+    const dateOnly = date.split('T')[0]; 
+    
+    // Combine the date with startTime and endTime
+    const sessionStartDateTime = new Date(`${dateOnly}T${startTime}:00`);
+  const sessionEndDateTime = new Date(`${dateOnly}T${endTime}:00`);
+    const currentDateTime = new Date();
+  
+   
+  
+    const isActive = currentDateTime >= sessionStartDateTime && currentDateTime <= sessionEndDateTime;
+   
+  
+    return isActive;
+  };
+  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -49,8 +66,12 @@ const StudentBookedSessions = () => {
                 <Table.Cell>{slot.startTime}</Table.Cell>
                 <Table.Cell>{slot.endTime}</Table.Cell>
                 <Table.Cell>
-                  <Button gradientDuoTone="greenToBlue" onClick={() => handleJoinSession(slot.sessionId, slot.tutorId._id)}>
-                    Join Session
+                  <Button
+                    gradientDuoTone="greenToBlue"
+                    onClick={() => handleJoinSession(slot.sessionId, slot.tutorId._id)}
+                    disabled={!isSessionActive(slot.date, slot.startTime, slot.endTime)}
+                  >
+                    {isSessionActive(slot.date, slot.startTime, slot.endTime) ? 'Join Session' : 'Not Available'}
                   </Button>
                 </Table.Cell>
               </Table.Row>
@@ -63,6 +84,7 @@ const StudentBookedSessions = () => {
 };
 
 export default StudentBookedSessions;
+
 // Utility function to format date
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -70,4 +92,4 @@ const formatDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
-}
+};

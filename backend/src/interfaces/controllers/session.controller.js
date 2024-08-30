@@ -1,5 +1,6 @@
 // controllers/session.controller.js
 import Session from '../../domain/session.model.js';
+import { refundPayment } from './payment.controller.js';
 
 export const markAttendance = async (req, res) => {
   const { sessionId } = req.params;
@@ -34,28 +35,42 @@ export const markAttendance = async (req, res) => {
 };
 
 export const cancelSession = async (req, res) => {
-  const { sessionId } = req.params;  
- 
+  const { sessionId } = req.params;
 
   try {
-    
+    // Find and update the session with status check and populate slot details
     const session = await Session.findOneAndUpdate(
-      { 
-        '_id': sessionId,       // Find session by slotId
-        'status': 'confirmed'   // Ensure the session status is confirmed
-      },
-      { status: 'cancelled' },  // Update status to cancelled
-      { new: true }              // Return the updated document
-    );
+      { _id: sessionId, status: 'confirmed' },
+      { status: 'cancelled' },
+      { new: true } // Return the updated document
+    ).populate('slotId')
+    .populate('tutorId'); 
 
     if (!session) {
       return res.status(404).json({ message: 'Session not found or not confirmed' });
     }
 
-    res.json(session);
+    // Format date, start time, and end time for readability
+    const slot = session.slotId;
+    const formattedDate = slot.date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const formattedStartTime = slot.startTime; // Assuming it's already formatted as a string
+
+    // Construct notification message with populated details
+    const notificationMessage = `Your session with ${session.tutorId.name} on ${formattedDate} from ${formattedStartTime} to ${slot.endTime} has been cancelled.`;
+
+    // Emit notification to student
+    req.io.to(session.studentId.toString()).emit('sendNotification', {
+      message: notificationMessage
+    });
+    console.log('Notification sent to student:', session.studentId.toString());
+
+    res.json({ message: 'Session cancelled successfully', session });
   } catch (error) {
     console.error('Error cancelling session:', error);
     res.status(500).json({ message: error.message });
   }
 };
-

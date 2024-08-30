@@ -11,7 +11,10 @@ export const fetchStudentData = createAsyncThunk('auth/fetchStudentData', async 
 
 export const fetchStudentBookedSlots = createAsyncThunk('auth/fetchStudentBookedSlots', async (studentId) => {
   const response = await apiCall('get', `${endpoints.FETCH_STUDENT_BOOKED_SLOTS}/${studentId}`);
+  console.log(response.data);
+  
   return response.data;
+
 });
 
 const studentSlice = createSlice({

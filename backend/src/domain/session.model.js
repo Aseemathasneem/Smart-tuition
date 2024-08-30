@@ -23,8 +23,12 @@ const sessionSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'completed', 'failed','refunded'],
     default: 'pending'
+  },
+  paymentIntentId: {
+    type: String,  
+    required: false,
   },
   studentAttended: {
     type: Boolean,

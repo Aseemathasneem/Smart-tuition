@@ -17,6 +17,7 @@ const TutorRoutes = () => (
   <Route path="sign-up" element={<TutorSignUp />} />
   <Route path="otp-verification" element={<TutorOtpVerification />} />
   <Route path="home" element={<TutorHome />} />
+  
   <Route element={<PrivateRoutes />}>
       <Route path="dashboard" element={<TutorDashboard />} />
       <Route path="session/:sessionId" element={<TutorSession />} />

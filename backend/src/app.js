@@ -41,15 +41,7 @@ app.use('/api/tutor', tutorRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/sessions', sessionRoutes);
 
-// app.get('/test-notification', (req, res) => {
-//     const testNotification = {
-//       userId: 'testUserId',
-//       userType: 'student',
-//       message: 'This is a test notification'
-//     };
-//     io.emit('notification', testNotification);
-//     res.send('Test notification sent');
-//   });
+
 
 
 app.use(errorMiddleware)

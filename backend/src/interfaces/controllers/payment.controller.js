@@ -58,6 +58,7 @@ export const handleStripeWebhook = async (req, res) => {
 
     try {
       const { tutorId, studentId, slotId , amount } = session.metadata;
+      const paymentIntentId = session.payment_intent;
 
       const bookedSession = await Session.findOne({
         tutorId,
@@ -88,6 +89,7 @@ export const handleStripeWebhook = async (req, res) => {
       // Update the session status to confirmed and paymentStatus to completed
       bookedSession.status = 'confirmed';
       bookedSession.paymentStatus = 'completed';
+      bookedSession.paymentIntentId = paymentIntentId;
       await bookedSession.save();
 
        // Create and save the payment record
@@ -98,6 +100,7 @@ export const handleStripeWebhook = async (req, res) => {
         tutoringFee,
         platformFee,
         totalAmount,
+        paymentIntentId,
         paymentStatus: 'completed',
       });
       await paymentRecord.save();
@@ -127,5 +130,38 @@ export const handleStripeWebhook = async (req, res) => {
     }
   } else {
     res.status(400).json({ error: 'Unhandled event type' });
+  }
+};
+
+export const refundPayment = async (sessionId) => {
+  try {
+    const session = await Session.findById(sessionId);
+
+    if (!session || session.paymentStatus !== 'completed') {
+      return { success: false, message: 'Session not found or payment not completed' };
+    }
+
+    const paymentRecord = await Payment.findOne({ sessionId });
+
+    if (!paymentRecord) {
+      return { success: false, message: 'Payment record not found' };
+    }
+
+    const refund = await stripe.refunds.create({
+      payment_intent: paymentRecord.paymentIntentId, // Use the stored paymentIntentId to issue a refund
+    });
+
+    // Update the session payment status
+    session.paymentStatus = 'refunded';
+    await session.save();
+
+    // Update the payment record status
+    paymentRecord.paymentStatus = 'refunded';
+    await paymentRecord.save();
+
+    return { success: true, message: 'Refund processed successfully', refund };
+  } catch (error) {
+    console.log('Error processing refund:', error);
+    return { success: false, message: 'Failed to process refund', error: error.message };
   }
 };

@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchStudentAssignments,submitAssignmentAnswer } from '../../redux/assignment/assignmentSlice';
-import { Card, Button, TextInput, FileInput, Modal } from 'flowbite-react';
+import { fetchStudentAssignments, submitAssignmentAnswer } from '../../redux/assignment/assignmentSlice';
+import { Card, Button, FileInput, Modal } from 'flowbite-react';
 import { useToast } from '../../contexts/ToastContext';
+import GradientButton from '../../components/GradientButton';
 
 const StudentAssignments = () => {
   const dispatch = useDispatch();
   const assignments = useSelector(state => state.assignment.studentAssignments);
-  const studentId = useSelector(state => state.student.currentUser._id);
-  const submissionStatus = useSelector(state => state.assignment.submissionStatus);
+  const currentUser = useSelector(state => state.student.currentUser);
   const showToast = useToast();
-
+  
   const [answers, setAnswers] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [currentAssignment, setCurrentAssignment] = useState(null);
 
   useEffect(() => {
-    if (studentId) {
-      console.log('Fetching assignments for studentId:', studentId);
-      dispatch(fetchStudentAssignments(studentId));
+    if (currentUser && currentUser._id) {
+      console.log('Fetching assignments for studentId:', currentUser._id);
+      dispatch(fetchStudentAssignments(currentUser._id));
     }
-  }, [dispatch, studentId]);
-
-  useEffect(() => {
-    console.log('Assignments state updated:', assignments);
-  }, [assignments]);
+  }, [dispatch, currentUser]);
 
   const handleFileChange = (e) => {
     setAnswers({
@@ -33,20 +29,12 @@ const StudentAssignments = () => {
     });
   };
 
-  const handleTextChange = (e) => {
-    setAnswers({
-      ...answers,
-      text: e.target.value
-    });
-  };
-
   const handleSubmit = () => {
-    const answer = answers;
-    if (answer) {
+    if (currentAssignment && currentUser) {
       const formData = new FormData();
-      formData.append('file', answer.file);
+      formData.append('file', answers.file);
       formData.append('assignmentId', currentAssignment._id);
-      formData.append('studentId', studentId);
+      formData.append('studentId', currentUser._id);
       
       dispatch(submitAssignmentAnswer(formData)).then(() => {
         showToast('Answer submitted successfully', 'success');
@@ -62,9 +50,15 @@ const StudentAssignments = () => {
     setShowModal(true);
   };
 
+  if (!currentUser) {
+    return <div>Loading...</div>; // Or a more sophisticated loader/spinner
+  }
+
   return (
-    <div className="flex flex-col items-center p-4">
+    <div className="flex flex-col items-center p-4 bg-gray-100 dark:bg-gray-900">
       <h1 className="text-3xl font-bold mb-6">Your Assignments</h1>
+      <p className="text-lg text-blue-600 dark:text-gray-400 mb-8">Stay on top of your tasks and submit your assignments on time.</p>
+      
       <div className="flex flex-col gap-4 w-full">
         {assignments.map((assignment) => (
           <Card key={assignment._id} className="w-full">
@@ -76,15 +70,29 @@ const StudentAssignments = () => {
                 <p><strong>Subject:</strong> {assignment.subject}</p>
                 <p><strong>Instructions:</strong> {assignment.instructions}</p>
                 <p><strong>Description:</strong> {assignment.description}</p>
-                <p><strong>Grade:</strong> {assignment.grade}</p>
+                <p><strong>Total Mark:</strong> {assignment.grade}</p>
               </div>
-              {submissionStatus[assignment._id] === 'submitted' ? (
-                <span className="text-green-500  font-bold">Answer Submitted</span>
-              ) : (
-                <Button onClick={() => openModal(assignment)}>
+              {assignment.status === 'assigned' ? (
+                <GradientButton onClick={() => openModal(assignment)}>
                   Upload Your Assignment
-                </Button>
-              )}
+                </GradientButton>
+              ) : assignment.status === 'completed' ? (
+                <span className="text-green-500 font-bold">Answer Submitted</span>
+              ) : assignment.status === 'verified' && assignment.tutorAssignedGrade !== undefined ? (
+                <div className="mt-4">
+  <div className="flex flex-col">
+    <div className="flex items-center space-x-2">
+      <span className="text-blue-500 font-bold">Your Mark:</span>
+      <span className="text-blue-500 font-bold">{assignment.tutorAssignedGrade}</span>
+    </div>
+    <div className="mt-2">
+      <p className="text-green-500 dark:text-gray-300"><strong>Remarks:</strong> {assignment.remarks || 'No remarks provided'}</p>
+    </div>
+  </div>
+</div>
+
+              
+              ) : null}
             </div>
           </Card>
         ))}
@@ -99,21 +107,18 @@ const StudentAssignments = () => {
             Submit Your Answer
           </Modal.Header>
           <Modal.Body>
-            
-            <FileInput
-              onChange={handleFileChange}
-            />
-              <p className="text-sm text-gray-600 p-1">
+            <FileInput onChange={handleFileChange} />
+            <p className="text-sm text-gray-600 p-1">
               Accepted file formats: PDF (.pdf), Microsoft Word (.docx), and plain text (.txt).<br />
               Maximum file size: 4 MB.<br />
               Please ensure your file is in one of the accepted formats before uploading.
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={handleSubmit}>
+            <GradientButton onClick={handleSubmit}>
               Submit
-            </Button>
-            <Button color="gray" onClick={() => setShowModal(false)}>
+            </GradientButton>
+            <Button color="failure" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
           </Modal.Footer>

@@ -49,9 +49,26 @@ export const getTutorDetails = async (req, res) => {
       return res.status(404).json({ message: 'Tutor not found' });
     }
 
-    const slots = await Slot.find({ tutorId: req.params.tutorId });
+    // No need to fetch slots here
+    res.json({ tutor });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
 
-    res.json({ tutor, slots });
+export const getSlotsByDate = async (req, res) => {
+  try {
+    const { tutorId } = req.params;
+    const { date } = req.query;
+   
+
+    const slots = await Slot.find({
+      tutorId,
+      date: new Date(date).toISOString().split("T")[0], 
+      status: "available",
+    });
+
+    res.json({ slots });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -59,6 +76,7 @@ export const getTutorDetails = async (req, res) => {
 
 export const bookSlot = async (req, res) => {
   const { tutorId, studentId, date, startTime, endTime } = req.body;
+  console.log(req.body)
 
   try {
     
@@ -84,7 +102,7 @@ export const bookSlot = async (req, res) => {
       return res.status(400).json({ message: 'Slot not available' });
     }
 
-    
+    console.log("Slot:", slot);
 
     // Create a new session with status pending
     const session = new Session({
@@ -105,6 +123,7 @@ export const bookSlot = async (req, res) => {
     
 
     await session.save();
+    
     
     res.status(200).json({ message: 'Slot booked successfully with pending status', slotId: slot._id });
   } catch (error) {
@@ -154,7 +173,9 @@ export const getAssignmentsByStudent = async (req, res) => {
   
 
   try {
-    const assignments = await Assignment.find({ studentId }).populate('tutorId', 'name');
+    const assignments = await Assignment.find({ studentId })
+      .populate('tutorId', 'name')
+      .sort({ createdAt: -1 });
     res.status(200).json(assignments);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching assignments for the student', error });
