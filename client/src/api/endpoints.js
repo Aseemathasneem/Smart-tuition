@@ -19,6 +19,7 @@ const endpoints = {
     MARK_ATTENDANCE: (sessionId) => `/sessions/${sessionId}/leave`,
     FETCH_STUDENT_ASSIGNMENTS: '/student/assignments',
     SUBMIT_ASSIGNMENT_ANSWER: '/student/submit-answer',
+    GET_TOP_TUTORS:'/student/top-tutors',
 
 
    TUTOR_SIGN_UP: '/tutor/signup',
@@ -48,6 +49,8 @@ const endpoints = {
     GET_TUTOR_PAYMENT_DETAILS:(tutorId) => `/tutor/tutor-payments/${tutorId}`,
     GRADE_SUBMISSION:'/tutor/submissions',
     VERIFY_TOKEN: '/tutor/verify-token',
+    GET_TUTOR_STATUS:'/tutor/blocked_status',
+    
 
 
 

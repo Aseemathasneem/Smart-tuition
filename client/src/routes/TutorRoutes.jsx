@@ -10,6 +10,7 @@ import PrivateRoutes from '../pages/tutor/TutorPrivateRoute';
 import TutorHome from '../pages/tutor/TutorHome';
 import TutorSession from '../pages/tutor/TutorSession'
 import TutorNotifications from '../pages/tutor/TutorNotifications';
+import BlockedError from '../components/BlockedError'
 
 const TutorRoutes = () => (
   <Routes>
@@ -17,6 +18,7 @@ const TutorRoutes = () => (
   <Route path="sign-up" element={<TutorSignUp />} />
   <Route path="otp-verification" element={<TutorOtpVerification />} />
   <Route path="home" element={<TutorHome />} />
+  <Route path="/blocked" element={<BlockedError />} />
   
   <Route element={<PrivateRoutes />}>
       <Route path="dashboard" element={<TutorDashboard />} />

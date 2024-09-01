@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar } from "flowbite-react";
 import {
   HiUser,
@@ -6,17 +6,16 @@ import {
   HiCalendar,
   HiChartPie,
   HiClock,
-  HiPlusCircle
+  HiPlusCircle,
 } from "react-icons/hi";
-import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSelector,useDispatch } from "react-redux";
-import { fetchTutorData } from '../redux/tutor/tutorSlice';
+import { useSelector } from "react-redux";
+import { apiCall } from "../api/apiCalls";
+import endpoints from "../api/endpoints";
 
 export default function TutorSidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const navigate = useNavigate(); // Use navigate for redirection
   const { currentUser: tutorUser } = useSelector((state) => state.tutor);
   const [tab, setTab] = useState("");
 
@@ -28,24 +27,24 @@ export default function TutorSidebar() {
     }
   }, [location.search]);
 
-  useEffect(() => {
-    // Fetch tutor data on load
-    dispatch(fetchTutorData())
-      .then((action) => {
-        if (action.payload?.isBlocked) {
-          navigate("/blocked");
+  // Function to check if the tutor is blocked
+  const checkBlockedStatus = async (event, targetPath) => {
+    event.preventDefault(); // Prevent the default navigation
+    const token = localStorage.getItem("tu_token");
+    if (token) {
+      try {
+        const data = await apiCall("get", endpoints.GET_TUTOR_STATUS);
+        if (data.isBlocked) {
+          navigate("/tutor/blocked"); // Redirect to /blocked if the tutor is blocked
+        } else {
+          navigate(targetPath); // Proceed to the intended path if not blocked
         }
-      })
-      .catch((error) => {
-        console.error("Error fetching tutor data", error);
-      });
-  }, [dispatch, navigate]);
-
-  const handleLinkClick = (e) => {
-    console.log(tutorUser);
-    if (tutorUser?.isBlocked) {
-      e.preventDefault();
-      navigate('/blocked'); 
+      } catch (error) {
+        console.error("Error fetching blocked status:", error);
+        navigate("/tutor/blocked"); // Redirect to /blocked on error as a fallback
+      }
+    } else {
+      navigate("/tutor/home"); // Redirect to home if no token is found
     }
   };
 
@@ -53,7 +52,10 @@ export default function TutorSidebar() {
     <Sidebar className="w-full md:w-56">
       <Sidebar.Items>
         <Sidebar.ItemGroup className="flex flex-col gap-1">
-          <Link to="/tutor/dashboard?tab=dash" onClick={handleLinkClick}>
+          <a
+            href="/tutor/dashboard?tab=dash"
+            onClick={(e) => checkBlockedStatus(e, "/tutor/dashboard?tab=dash")}
+          >
             <Sidebar.Item
               active={tab === "dash" || !tab}
               icon={HiChartPie}
@@ -61,10 +63,15 @@ export default function TutorSidebar() {
             >
               Dashboard
             </Sidebar.Item>
-          </Link>
+          </a>
 
           {tutorUser?.status !== "approved" && (
-            <Link to="/tutor/dashboard?tab=apply_for_approval" onClick={handleLinkClick}>
+            <a
+              href="/tutor/dashboard?tab=apply_for_approval"
+              onClick={(e) =>
+                checkBlockedStatus(e, "/tutor/dashboard?tab=apply_for_approval")
+              }
+            >
               <Sidebar.Item
                 active={tab === "apply_for_approval"}
                 icon={HiDocumentReport}
@@ -72,34 +79,51 @@ export default function TutorSidebar() {
               >
                 Apply for Approval
               </Sidebar.Item>
-            </Link>
+            </a>
           )}
 
           {tutorUser?.status === "approved" && (
-            <Link to="/tutor/dashboard?tab=profile" onClick={handleLinkClick}>
-              <Sidebar.Item
-                active={tab === "profile"}
-                icon={HiUser}
-                label={"Tutor"}
-                labelColor="dark"
-                as="div"
+            <>
+              <a
+                href="/tutor/dashboard?tab=profile"
+                onClick={(e) =>
+                  checkBlockedStatus(e, "/tutor/dashboard?tab=profile")
+                }
               >
-                Profile
-              </Sidebar.Item>
-            </Link>
+                <Sidebar.Item
+                  active={tab === "profile"}
+                  icon={HiUser}
+                  label={"Tutor"}
+                  labelColor="dark"
+                  as="div"
+                >
+                  Profile
+                </Sidebar.Item>
+              </a>
+
+              <a
+                href="/tutor/dashboard?tab=availability"
+                onClick={(e) =>
+                  checkBlockedStatus(e, "/tutor/dashboard?tab=availability")
+                }
+              >
+                <Sidebar.Item
+                  active={tab === "availability"}
+                  icon={HiCalendar}
+                  as="div"
+                >
+                  Schedule Availability
+                </Sidebar.Item>
+              </a>
+            </>
           )}
 
-          <Link to="/tutor/dashboard?tab=availability" onClick={handleLinkClick}>
-            <Sidebar.Item
-              active={tab === "availability"}
-              icon={HiCalendar}
-              as="div"
-            >
-              Schedule Availability
-            </Sidebar.Item>
-          </Link>
-
-          <Link to="/tutor/dashboard?tab=booked-slots" onClick={handleLinkClick}>
+          <a
+            href="/tutor/dashboard?tab=booked-slots"
+            onClick={(e) =>
+              checkBlockedStatus(e, "/tutor/dashboard?tab=booked-slots")
+            }
+          >
             <Sidebar.Item
               active={tab === "booked-slots"}
               icon={HiClock}
@@ -107,9 +131,14 @@ export default function TutorSidebar() {
             >
               View Booked Slots
             </Sidebar.Item>
-          </Link>
+          </a>
 
-          <Link to="/tutor/dashboard?tab=available-slots" onClick={handleLinkClick}>
+          <a
+            href="/tutor/dashboard?tab=available-slots"
+            onClick={(e) =>
+              checkBlockedStatus(e, "/tutor/dashboard?tab=available-slots")
+            }
+          >
             <Sidebar.Item
               active={tab === "available-slots"}
               icon={HiClock}
@@ -117,9 +146,14 @@ export default function TutorSidebar() {
             >
               View Available Slots
             </Sidebar.Item>
-          </Link>
+          </a>
 
-          <Link to="/tutor/dashboard?tab=post-assignment" onClick={handleLinkClick}>
+          <a
+            href="/tutor/dashboard?tab=post-assignment"
+            onClick={(e) =>
+              checkBlockedStatus(e, "/tutor/dashboard?tab=post-assignment")
+            }
+          >
             <Sidebar.Item
               active={tab === "post-assignment"}
               icon={HiPlusCircle}
@@ -127,9 +161,17 @@ export default function TutorSidebar() {
             >
               Post Assignment
             </Sidebar.Item>
-          </Link>
+          </a>
 
-          <Link to="/tutor/dashboard?tab=submitted-assignments" onClick={handleLinkClick}>
+          <a
+            href="/tutor/dashboard?tab=submitted-assignments"
+            onClick={(e) =>
+              checkBlockedStatus(
+                e,
+                "/tutor/dashboard?tab=submitted-assignments"
+              )
+            }
+          >
             <Sidebar.Item
               active={tab === "submitted-assignments"}
               icon={HiDocumentReport}
@@ -137,7 +179,7 @@ export default function TutorSidebar() {
             >
               Submitted Answers
             </Sidebar.Item>
-          </Link>
+          </a>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>

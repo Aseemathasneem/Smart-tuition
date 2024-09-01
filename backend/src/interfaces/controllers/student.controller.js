@@ -207,3 +207,17 @@ export const getAssignmentsByStudent = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const getTopTutors = async (req, res) => {
+  try {
+     // Fetch top 5 tutors based on rating, if no rating, fetch the first 5 tutors
+     const topTutors = await Tutor.find({ status: 'approved' })
+     .sort({ rating: -1 })
+     .limit(5);
+
+   res.status(200).json(topTutors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

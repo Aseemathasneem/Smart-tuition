@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useContext } from 'react';
 import { Button, Navbar, Dropdown, Avatar } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaMoon, FaSun ,FaBell} from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
+import { useToast } from "../contexts/ToastContext";
+import { NotificationContext } from "../contexts/NotificationContext";
+import NotificationHandler from "./NotificationHandler";
 
 import { clearAuth, resetError,fetchTutorData } from '../redux/tutor/tutorSlice';
 const TutorHeader = () => {
@@ -12,6 +15,9 @@ const TutorHeader = () => {
   const { theme } = useSelector((state) => state.theme);
   const { token } = useSelector((state) => state.tutor);
   const dispatch = useDispatch();
+
+  const showToast = useToast(); // Use the toast hook here
+  const { notifications, addNotification } = useContext(NotificationContext); 
 
   useEffect(() => {
     const storedToken = localStorage.getItem('tu_token');
@@ -39,6 +45,14 @@ const TutorHeader = () => {
       console.log(error.message);
     }
   };
+  const handleNewNotification = (message) => {
+    console.log("New notification received:", message);
+    addNotification(message); // Add the notification to the context
+    showToast(message.message, "success"); // Display the toast message
+  };
+
+  // Calculate unread notifications count
+  const unreadCount = notifications.filter((notif) => !notif.read).length;
 
   return (
     <Navbar className='border-b-2 bg-blue-200'>
@@ -55,9 +69,14 @@ const TutorHeader = () => {
           {theme === 'light' ? <FaSun /> : <FaMoon />}
         </Button>
         <Link to='/tutor/notifications'>
-        <Button className='w-12 h-10' color='gray' pill>
-          <FaBell />
-        </Button>
+        <Button className="w-12 h-10 relative" color="gray" pill>
+            <FaBell />
+            {unreadCount > 0 && (
+              <span className="badge absolute top-0 right-0 flex items-center justify-center w-5 h-5 bg-red-600 text-white text-xs rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </Button>
       </Link>
         {currentUser ? (
           <Dropdown
@@ -92,6 +111,12 @@ const TutorHeader = () => {
         <Link to="/tutor/dashboard?tab=dash">Dashboard</Link>
         </Navbar.Link>
       </Navbar.Collapse>
+      {currentUser && (
+        <NotificationHandler
+          onNewNotification={handleNewNotification}
+          userId={currentUser._id}
+        />
+      )}
     </Navbar>
   );
 };

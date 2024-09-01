@@ -88,17 +88,13 @@ export default function AdminHeader() {
       </div>
       <Navbar.Collapse>
         <Navbar.Link active={path === '/'} as={'div'}>
-          <Link to='/'>Home</Link>
+          <Link to='/admin/home'>Home</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === '/admin/profile'} as={'div'}>
-          <Link to='/admin/profile'>Admin</Link>
-        </Navbar.Link>
+       
         <Navbar.Link active={path === '/admin/dashboard'} as={'div'}>
           <Link to='/admin/dashboard'>Dashboard</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === '/admin/approval-requests'} as={'div'}>
-          <Link to='/admin/approval-requests'>Approval Requests</Link>
-        </Navbar.Link>
+       
       </Navbar.Collapse>
     </Navbar>
   );

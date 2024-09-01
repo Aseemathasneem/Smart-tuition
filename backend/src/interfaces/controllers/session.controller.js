@@ -50,6 +50,16 @@ export const cancelSession = async (req, res) => {
       return res.status(404).json({ message: 'Session not found or not confirmed' });
     }
 
+     // Check if the payment status is 'completed' and process the refund
+     if (session.paymentStatus === 'completed') {
+      const refundResult = await refundPayment(sessionId);
+
+      if (!refundResult.success) {
+        return res.status(500).json({ message: 'Session cancelled but refund processing failed', error: refundResult.message });
+      }
+    }
+
+
     // Format date, start time, and end time for readability
     const slot = session.slotId;
     const formattedDate = slot.date.toLocaleDateString('en-US', {

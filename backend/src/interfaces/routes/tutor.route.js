@@ -25,7 +25,8 @@ import {
   gradeSubmission,
   getDistinctStudentsCount,
   getTotalTutoringHours,
-  getTutorPaymentDetails
+  getTutorPaymentDetails,
+  getBlockedStatus
 
 } from '../controllers/tutor.controller.js';
 import { verifyToken} from '../../middleware/authMiddleware.js';
@@ -69,6 +70,8 @@ router.get('/tutor-revenue/:tutorId',verifyToken('tutor'), getTutorRevenue);
 router.get('/distinct-students/:tutorId',verifyToken('tutor'), getDistinctStudentsCount);
 router.get('/tutor-hours/:tutorId',verifyToken('tutor'),  getTotalTutoringHours);
 router.get('/tutor-payments/:tutorId',verifyToken('tutor'),  getTutorPaymentDetails);
+router.get('/blocked_status',verifyToken('tutor'),getBlockedStatus)
+
 
 
 

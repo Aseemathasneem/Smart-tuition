@@ -115,7 +115,7 @@ export const saveAvailability = async (req, res) => {
 
     const newSlots = [];
 
-    availability.forEach(slot => {
+    for (const slot of availability) {
       const { start, end } = slot;
       const startDate = new Date(start);
       const endDate = new Date(end);
@@ -125,15 +125,37 @@ export const saveAvailability = async (req, res) => {
       const date = startDate.toISOString().split('T')[0]; // Extract the date part
 
       for (let hour = startHour; hour < endHour; hour++) {
+        const startTime = `${hour.toString().padStart(2, '0')}:00`;
+        const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+
+        // Check for conflicting booked slots
+        const conflictingSlot = await Slot.findOne({
+          tutorId,
+          status: 'booked',
+          date,
+          $or: [
+            {
+              $and: [
+                { startTime: { $lt: endTime } },
+                { endTime: { $gt: startTime } }
+              ]
+            }
+          ]
+        });
+
+        if (conflictingSlot) {
+          return res.status(403).json({ success: false, message: `Conflicting booked slot found on ${date} from ${conflictingSlot.startTime} to ${conflictingSlot.endTime}` });
+        }
+
         newSlots.push({
           tutorId,
           date,
-          startTime: `${hour.toString().padStart(2, '0')}:00`,
-          endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
+          startTime,
+          endTime,
           status: 'available',
         });
       }
-    });
+    }
 
     // Save new slots to the database
     const savedSlots = await Slot.insertMany(newSlots);
@@ -144,6 +166,7 @@ export const saveAvailability = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error', error });
   }
 };
+
 export const fetchBookedSlots = async (req, res) => {
   try {
     const { tutorId } = req.params;
@@ -533,5 +556,22 @@ export const getTutorPaymentDetails = async (req, res) => {
   } catch (error) {
     console.error("Error fetching payment details:", error);
     res.status(500).json({ message: 'Error fetching payment details', error });
+  }
+};
+
+export const getBlockedStatus = async (req, res) => {
+  try {
+    const tutorId = req.user.id; 
+    console.log(tutorId)
+    const tutor = await Tutor.findById(tutorId);
+
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
+
+    res.json({ isBlocked: tutor.isBlocked });
+  } catch (error) {
+    console.error('Error fetching blocked status:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

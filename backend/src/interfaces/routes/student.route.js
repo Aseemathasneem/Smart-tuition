@@ -14,7 +14,8 @@ import { signout,
   getNotifications,
   getAssignmentsByStudent,
   submitAnswer,
-  getSlotsByDate
+  getSlotsByDate,
+  getTopTutors
   } from '../controllers/student.controller.js'
   import uploadAnswer from '../../middleware/uploadAnswers.js';
 
@@ -32,6 +33,8 @@ router.post('/verify-otp', studentVerifyOtp);
 router.post('/signin', studentSignIn);
 router.post('/google-signin', studentGoogleSignIn);
 router.post('/signout', signout);
+router.get('/top-tutors', getTopTutors)
+
 
 router.get('/user-info', verifyToken('student'), getStudentData);
 router.get('/approved-tutors',verifyToken('student'),  getApprovedTutors);

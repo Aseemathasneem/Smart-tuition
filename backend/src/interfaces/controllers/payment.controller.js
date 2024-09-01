@@ -105,23 +105,21 @@ export const handleStripeWebhook = async (req, res) => {
       });
       await paymentRecord.save();
 
-      // Create and save notifications
-      const tutorNotification = new Notification({
-        userId: tutorId,
-        userType: 'tutor',
-        message: `A new booking has been confirmed for your session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`
-      });
-
-      const studentNotification = new Notification({
-        userId: studentId,
-        userType: 'student',
-        message:`Your booking has been confirmed for the session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`
-      });
-
-      await tutorNotification.save();
-      await studentNotification.save();
-
-     
+       // Notification messages
+       const studentNotificationMessage = `Your booking has been confirmed for the session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`;
+       const tutorNotificationMessage = `A new booking has been confirmed for your session on ${slot.date.toDateString()} from ${slot.startTime} to ${slot.endTime}`;
+ 
+       // Emit notification to student
+       req.io.to(studentId.toString()).emit('sendNotification', {
+         message: studentNotificationMessage
+       });
+       console.log('Notification sent to student:', studentId.toString());
+ 
+       // Emit notification to tutor
+       req.io.to(tutorId.toString()).emit('sendNotification', {
+         message: tutorNotificationMessage
+       });
+       console.log('Notification sent to tutor:', tutorId.toString());
 
       res.status(200).json({ received: true });
     } catch (error) {

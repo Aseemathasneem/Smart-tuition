@@ -12,6 +12,7 @@ const initialState = {
   error: null,
   loading: false,
   successMessage: '',
+  tutor_isBlocked: null,
 };
 
 export const fetchAdminData = createAsyncThunk('auth/fetchAdminData', async (token) => {
@@ -177,6 +178,8 @@ const adminSlice = createSlice({
         if (tutor) {
           tutor.isBlocked = true;
         }
+        state.tutor_isBlocked = true; 
+        console.log('Tutor is blocked:', state.tutor_isBlocked);
       })
       .addCase(blockTutor.rejected, (state, action) => {
         state.error = action.error.message;
@@ -188,6 +191,8 @@ const adminSlice = createSlice({
         if (tutor) {
           tutor.isBlocked = false;
         }
+        state.tutor_isBlocked = false; 
+        console.log('Tutor is unblocked:', state.tutor_isBlocked); 
       })
       .addCase(unblockTutor.rejected, (state, action) => {
         state.error = action.error.message;
