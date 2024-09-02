@@ -6,8 +6,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://13.127.132.140',
-        secure: false,
+        target: 'https://smarttuition.solutions',
+        secure: true,
       },
     },
   },
