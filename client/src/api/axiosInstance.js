@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // Create an instance of axios without setting a default baseURL
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://13.127.132.140/api',
+  
 });
 
 // Add a request interceptor to include the token
