@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an instance of axios without setting a default baseURL
 const axiosInstance = axios.create({
-  baseURL: 'http://13.127.132.140/api',
+  baseURL: '/api',
   
 });
 
