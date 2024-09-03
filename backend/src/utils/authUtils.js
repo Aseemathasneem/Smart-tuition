@@ -194,7 +194,7 @@ export async function signin(Model, req, res, next) {
       .cookie(cookieName, accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'None', // Allows cookies to be sent cross-site
+        sameSite: 'Lax', // Allows cookies to be sent cross-site
     domain: '.smarttuition.solutions', // Specify the domain if needed
       })
       
