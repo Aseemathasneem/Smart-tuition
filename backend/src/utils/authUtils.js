@@ -194,8 +194,8 @@ export async function signin(Model, req, res, next) {
       .cookie(cookieName, accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'Lax', // Allows cookies to be sent cross-site
-    domain: '.smarttuition.solutions', // Specify the domain if needed
+    //     sameSite: 'Lax', // Allows cookies to be sent cross-site
+    // domain: '.smarttuition.solutions', // Specify the domain if needed
       })
       
       .json({
@@ -225,8 +225,8 @@ export async function googleSignIn(Model, req, res, next) {
         .cookie('accessToken', accessToken, {
           httpOnly: true,
           secure: true, // Set to true if using HTTPS
-          sameSite: 'None', // Allows cookies to be sent cross-site
-    domain: 'smarttuition.solutions', // Specify the domain if needed
+    //       sameSite: 'None', // Allows cookies to be sent cross-site
+    // domain: 'smarttuition.solutions', // Specify the domain if needed
         })
         // .cookie('refreshToken', refreshToken, {
         //   httpOnly: true,
