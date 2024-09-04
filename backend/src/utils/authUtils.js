@@ -224,7 +224,8 @@ export async function googleSignIn(Model, req, res, next) {
         .status(200)
         .cookie('accessToken', accessToken, {
           httpOnly: true,
-          secure: true, // Set to true if using HTTPS
+          secure: true, 
+          path:'/'
     //       sameSite: 'None', // Allows cookies to be sent cross-site
     // domain: 'smarttuition.solutions', // Specify the domain if needed
         })
