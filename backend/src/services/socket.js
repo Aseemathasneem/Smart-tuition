@@ -5,7 +5,7 @@ let io;
 const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: "https://www.smarttuition.solutions",
       methods: ["GET", "POST"]
     }
   });
