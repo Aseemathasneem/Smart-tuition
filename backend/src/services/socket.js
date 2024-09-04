@@ -3,12 +3,7 @@ import { Server } from 'socket.io';
 let io;
 
 const initializeSocket = (server) => {
-  io = new Server(server, {
-    cors: {
-      origin: "https://www.smarttuition.solutions",
-      methods: ["GET", "POST"]
-    }
-  });
+  io = new Server(server); 
 
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
