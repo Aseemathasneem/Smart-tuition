@@ -1,11 +1,8 @@
 import axios from 'axios';
-const baseURL = process.env.NODE_ENV === 'production' 
-  ? 'https://smarttuition.solutions/api' 
-  : '/api';
 
 // Create an instance of axios without setting a default baseURL
 const axiosInstance = axios.create({
-  baseURL: baseURL,
+  
   
 });
 
