@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an instance of axios without setting a default baseURL
 const axiosInstance = axios.create({
  
-  
+  baseURL: 'https://smarttuition.solutions/api',
 });
 
 // Add a request interceptor to include the token
