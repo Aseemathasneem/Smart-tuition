@@ -128,7 +128,7 @@ export default function TutorSignUp() {
                 "Sign Up"
               )}
             </Button>
-            <OAuth apiEndpoint="/api/tutor/google-signin" />
+            <OAuth apiEndpoint={endpoints.TUTOR_GOOGLE_SIGNIN} />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Have an account?</span>

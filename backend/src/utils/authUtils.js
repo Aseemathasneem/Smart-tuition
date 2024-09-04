@@ -219,24 +219,20 @@ export async function googleSignIn(Model, req, res, next) {
       // const refreshToken = generateRefreshToken(user);
 
       const { password, ...rest } = user._doc;
-
+      const cookieName = `${user.role}_accessToken`;
       res
         .status(200)
-        .cookie('accessToken', accessToken, {
+        .cookie(cookieName, accessToken, {
           httpOnly: true,
           secure: true, 
-          path:'/'
+          secure: process.env.NODE_ENV === 'production', // Ensure secure flag is only set in production
+          sameSite: 'Lax', // Consider using 'Lax' for broader compatibility
     
         })
-        // .cookie('refreshToken', refreshToken, {
-        //   httpOnly: true,
-        //   secure: true, // Set to true if using HTTPS
-        //   sameSite: 'Strict', // Adjust according to your needs
-        // })
+        
         .json({
           ...rest,
-          accessToken, // Include the access token in the response body
-        // Include the refresh token in the response body
+          accessToken, 
         });
     } else {
       const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
@@ -262,18 +258,16 @@ export async function googleSignIn(Model, req, res, next) {
         .status(200)
         .cookie('accessToken', accessToken, {
           httpOnly: true,
-          secure: true, // Set to true if using HTTPS
-          sameSite: 'Strict', // Adjust according to your needs
+          secure: true, 
+          secure: process.env.NODE_ENV === 'production', // Ensure secure flag is only set in production
+          sameSite: 'Lax', // Consider using 'Lax' for broader compatibility
+    
         })
-        .cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: true, // Set to true if using HTTPS
-          sameSite: 'Strict', // Adjust according to your needs
-        })
+       
         .json({
           ...rest,
           accessToken, // Include the access token in the response body
-          refreshToken, // Include the refresh token in the response body
+        
         });
     }
   } catch (error) {

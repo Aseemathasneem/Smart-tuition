@@ -122,7 +122,7 @@ export default function StudentSignUp() {
                                 'Sign Up'
                             )}
                         </Button>
-                        <OAuth apiEndpoint="/api/student/google-signin" />
+                        <OAuth apiEndpoint={endpoints.STUDENT_GOOGLE_SIGNIN} />
                     </form>
                     <div className='flex gap-2 text-sm mt-5'>
                         <span>Have an account?</span>

@@ -5,6 +5,9 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 import { fetchAdminData,clearAuth } from '../redux/admin/adminSlice';
+import { apiCall } from '../api/apiCalls';
+import endpoints from "../api/endpoints";
+
 
 export default function AdminHeader() {
   const path = useLocation().pathname;
@@ -31,12 +34,10 @@ export default function AdminHeader() {
 
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/admin/signout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log('Signout failed:', data.message);
+      const response = await apiCall("post", endpoints.ADMIN_SIGNOUT)
+      
+      if (response.status !== 200) {
+        console.log("Signout failed:", response.data.message);
       } else {
         dispatch(clearAuth());
         localStorage.removeItem('ad_token')

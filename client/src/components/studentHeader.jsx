@@ -9,6 +9,8 @@ import { fetchSubjects } from "../redux/subjects/subjectsSlice";
 import { useToast } from "../contexts/ToastContext";
 import { NotificationContext } from "../contexts/NotificationContext";
 import NotificationHandler from "./NotificationHandler";
+import { apiCall } from '../api/apiCalls';
+import endpoints from "../api/endpoints";
 
 const StudentHeader = () => {
   const path = useLocation().pathname;
@@ -30,12 +32,10 @@ const StudentHeader = () => {
 
   const handleSignout = async () => {
     try {
-      const res = await fetch("/api/student/signout", {
-        method: "POST",
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log("Signout failed:", data.message);
+      const response = await apiCall("post", endpoints.STUDENT_SIGNOUT)
+      
+      if (response.status !== 200) {
+        console.log("Signout failed:", response.data.message);
       } else {
         dispatch(clearAuth());
         localStorage.removeItem("st_token");

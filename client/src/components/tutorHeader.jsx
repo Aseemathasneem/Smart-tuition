@@ -7,6 +7,9 @@ import { toggleTheme } from '../redux/theme/themeSlice';
 import { useToast } from "../contexts/ToastContext";
 import { NotificationContext } from "../contexts/NotificationContext";
 import NotificationHandler from "./NotificationHandler";
+import { apiCall } from '../api/apiCalls';
+import endpoints from "../api/endpoints";
+
 
 import { clearAuth, resetError,fetchTutorData } from '../redux/tutor/tutorSlice';
 const TutorHeader = () => {
@@ -30,12 +33,10 @@ const TutorHeader = () => {
 
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/tutor/signout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log('Signout failed:', data.message);
+      const response = await apiCall("post", endpoints.TUTOR_SIGNOUT)
+      
+      if (response.status !== 200) {
+        console.log("Signout failed:", response.data.message);
       } else {
         dispatch(clearAuth());
         localStorage.removeItem('tu_token');

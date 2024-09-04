@@ -102,7 +102,7 @@ export default function AdminSignUp() {
                                 'Sign Up'
                             )}
                         </Button>
-                        <OAuth apiEndpoint="/api/admin/google-signin" />
+                        <OAuth apiEndpoint={endpoints.ADMIN_GOOGLE_SIGNIN} />
                     </form>
                     <div className='flex gap-2 text-sm mt-5'>
                         <span>Have an account?</span>
