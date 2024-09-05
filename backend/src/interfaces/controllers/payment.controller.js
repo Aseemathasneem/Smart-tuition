@@ -10,7 +10,9 @@ console.log('Stripe Key:', process.env.STRIPE_SECRET_KEY);
 export const createCheckoutSession = async (req, res) => {
   console.log('Request body:', req.body);
   const { amount, sessionDetails } = req.body;
-
+  if (!amount || !sessionDetails) {
+    return res.status(400).json({ error: 'Missing amount or sessionDetails in request body' });
+  }
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -38,9 +40,8 @@ export const createCheckoutSession = async (req, res) => {
 
     res.json({ id: session.id });
   } catch (error) {
-    console.error('Error creating Stripe session:', error.message);
-    console.error('Error details:', error);  // Log more details of the error
-    res.status(500).json({ error: error.message });
+    console.error('Error creating Stripe session:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
 

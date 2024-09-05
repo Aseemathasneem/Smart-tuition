@@ -103,7 +103,8 @@ const TutorDetails = () => {
     console.log("Proceed to payment");
     setModalVisible(false);
     navigate('/student/payment-summary', { state: sessionDetails });
-    toast.success("Slot booked successfully after payment");
+    
+
   };
   const handleDateChange = (date) => {
     const today = new Date(); 
