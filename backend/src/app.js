@@ -1,6 +1,7 @@
 // src/app.js
 import express from 'express';
 import { createServer } from 'http';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import studentRoutes from './interfaces/routes/student.route.js';
 import adminRoutes from './interfaces/routes/admin.route.js';
