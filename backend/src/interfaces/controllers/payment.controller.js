@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import dotenv from 'dotenv';
+
 import Session from '../../domain/session.model.js';
 import Notification from '../../domain/notification.model.js'
 import Slot from '../../domain/slot.model.js'

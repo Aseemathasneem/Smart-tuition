@@ -12,6 +12,8 @@ import errorMiddleware from './middleware/errorMiddleware.js';
 import path from 'path'; 
 import { fileURLToPath } from 'url';
 import { initializeSocket,io } from './services/socket.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
