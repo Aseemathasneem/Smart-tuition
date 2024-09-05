@@ -5,7 +5,7 @@ import Notification from '../../domain/notification.model.js'
 import Slot from '../../domain/slot.model.js'
 import Payment from '../../domain/payment.model.js'; 
 
-const stripe = new Stripe('sk_test_51Pcz5KJjcdJe7kAN9WPzyMVGvnwsj7PGaye8il8Sv8AaYOgLSKXwu9RtV6ffblBsI86rV0Yl3Ptw5mXqZFwz1wgh00Ko5O9HB1');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 export const createCheckoutSession = async (req, res) => {
