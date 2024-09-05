@@ -5,6 +5,7 @@ import Slot from '../../domain/slot.model.js'
 import Payment from '../../domain/payment.model.js'; 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+console.log('Stripe Key:', process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
   console.log('Request body:', req.body);
@@ -37,6 +38,8 @@ export const createCheckoutSession = async (req, res) => {
 
     res.json({ id: session.id });
   } catch (error) {
+    console.error('Error creating Stripe session:', error.message);
+    console.error('Error details:', error);  // Log more details of the error
     res.status(500).json({ error: error.message });
   }
 };
