@@ -7,6 +7,7 @@ import Payment from '../../domain/payment.model.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
+  console.log('Request body:', req.body);
   const { amount, sessionDetails } = req.body;
 
   try {
@@ -24,8 +25,8 @@ export const createCheckoutSession = async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'http://localhost:5173/student/payment-success?session_id={CHECKOUT_SESSION_ID}', 
-      cancel_url: 'http://localhost:5173/student/payment-cancel',
+      success_url: 'https://www.smarttuition.solutions/student/payment-success?session_id={CHECKOUT_SESSION_ID}', 
+      cancel_url: 'https://www.smarttuition.solutions/student/payment-cancel',
       metadata: {
         tutorId: sessionDetails.tutorId,
         studentId: sessionDetails.studentId,

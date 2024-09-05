@@ -21,6 +21,15 @@ const server = createServer(app);
 // Initialize socket.io
 initializeSocket(server);
 
+const corsOptions = {
+  origin: ['https://www.smarttuition.solutions'], // Allow your production and development URLs
+  credentials: true, // Allow cookies and auth headers
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+};
+
+app.use(cors(corsOptions)); // Apply CORS middleware
+
+
 // Use the raw body parser specifically for the Stripe webhook endpoint
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf }}));

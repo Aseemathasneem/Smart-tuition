@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Navbar, Dropdown, Avatar } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
 import { FaMoon, FaSun, FaBell } from "react-icons/fa";
@@ -13,6 +14,7 @@ import { apiCall } from '../api/apiCalls';
 import endpoints from "../api/endpoints";
 
 const StudentHeader = () => {
+  const navigate = useNavigate();
   const path = useLocation().pathname;
   const { currentUser } = useSelector((state) => state.student);
   const { subjects } = useSelector((state) => state.subjects);
@@ -39,7 +41,7 @@ const StudentHeader = () => {
       } else {
         dispatch(clearAuth());
         localStorage.removeItem("st_token");
-        window.location.href = "/student/home";
+        navigate("/student/home"); 
       }
     } catch (error) {
       console.log(error.message);

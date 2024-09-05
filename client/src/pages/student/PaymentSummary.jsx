@@ -2,6 +2,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements } from '@stripe/react-stripe-js';
+import { apiCall } from '../../api/apiCalls'; 
+import endPoints from '../../api/endpoints'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -16,25 +18,24 @@ const CheckoutForm = ({ amount, sessionDetails }) => {
       return;
     }
 
-    const response = await fetch('/api/payment/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      // Use the apiCall function to create the checkout session
+      const response = await apiCall('post', endPoints.PAYMENT_CHECKOUT, {
         amount,
         sessionDetails,
-      }),
-    });
+      });
 
-    const session = await response.json();
+      const session = response.data;
 
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id,
-    });
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
 
-    if (result.error) {
-      console.error(result.error.message);
+      if (result.error) {
+        console.error(result.error.message);
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error.message);
     }
   };
 

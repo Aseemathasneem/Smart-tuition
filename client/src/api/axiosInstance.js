@@ -4,6 +4,7 @@ import axios from 'axios';
 const axiosInstance = axios.create({
  
   baseURL: 'https://smarttuition.solutions/api',
+  withCredentials: true,
 });
 
 // Add a request interceptor to include the token

@@ -85,7 +85,9 @@ const endpoints = {
   GET_TOTAL_STUDENTS: '/admin/total-students',
   GET_TOTAL_TUTORS: '/admin/total-tutors',
   GET_ALL_PAYMENT_DETAILS:'/admin/payment-details',
+
   
+  PAYMENT_CHECKOUT :'/payment/create-checkout-session'
 
 
    
