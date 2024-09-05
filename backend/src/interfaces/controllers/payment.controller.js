@@ -8,7 +8,7 @@ const stripe = new Stripe(sk_test_51Pcz5KJjcdJe7kAN9WPzyMVGvnwsj7PGaye8il8Sv8AaY
 
 
 export const createCheckoutSession = async (req, res) => {
-  console.log('Request body:', req.body);
+  
   const { amount, sessionDetails } = req.body;
   if (!amount || !sessionDetails) {
     return res.status(400).json({ error: 'Missing amount or sessionDetails in request body' });
