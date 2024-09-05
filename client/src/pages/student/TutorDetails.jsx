@@ -63,7 +63,7 @@ const TutorDetails = () => {
       );
       setSlots(response.data.slots);
     } catch (err) {
-      toast.error("Failed to fetch slots for the selected date");
+      showToast("Failed to fetch slots for the selected date", 'error');
     }
   };
 
@@ -94,7 +94,7 @@ const TutorDetails = () => {
         throw new Error(response.data.message || "Failed to book slot");
       }
     } catch (error) {
-      toast.error(`Failed to book slot: ${error.message}`);
+      showToast(`Failed to book slot: ${error.message}`, 'error');
     }
   };
 
