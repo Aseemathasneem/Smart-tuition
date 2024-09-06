@@ -1,8 +1,24 @@
-import React from "react";
-import { TextInput } from "flowbite-react";
-import GradientButton from "../../components/GradientButton"; // Adjust the import path as needed
-
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { apiCall } from "../../api/apiCalls";
+import endpoints from "../../api/endpoints";
+import GradientButton from "../../components/GradientButton";
 export default function Home() {
+  const [tutors, setTutors] = useState([]);
+
+  useEffect(() => {
+    const fetchTopTutors = async () => {
+      try {
+        const response = await apiCall("get", endpoints.GET_TOP_TUTORS);
+        setTutors(response.data);
+      } catch (error) {
+        console.error("Failed to fetch top tutors:", error);
+      }
+    };
+
+    fetchTopTutors();
+  }, []);
+
   return (
     <div className="container mx-auto p-1">
       {/* Hero Section */}
@@ -91,133 +107,38 @@ export default function Home() {
         </div>
       </section>
 
-      <section class="py-24 mt-[-4rem]">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="mb-12">
-            <h2 class="text-3xl font-semibold tracking-wide text-gray-800 dark:text-white lg:text-4xl text-center">
+      <section className="py-24 mt-[-4rem]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12">
+            <h2 className="text-3xl font-semibold tracking-wide text-gray-800 dark:text-white lg:text-4xl text-center">
               Top Tutors
             </h2>
           </div>
-          <div class="grid grid-cols-1 min-[500px]:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-8 max-w-xl mx-auto md:max-w-3xl lg:max-w-full">
-            {/* <!-- Tutor 1 --> */}
-            <div class="block group md:col-span-2 lg:col-span-1">
-              <div class="relative mb-6">
-                <img
-                  src="https://pagedone.io/asset/uploads/1696238374.png"
-                  alt="Antonio image"
-                  class="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
-                />
+          <div className="grid grid-cols-1 min-[500px]:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-8 max-w-xl mx-auto md:max-w-3xl lg:max-w-full">
+            {tutors.map((tutor) => (
+              <div
+                key={tutor._id}
+                className="block group md:col-span-2 lg:col-span-1"
+              >
+                <div className="relative mb-6">
+                  <img
+                    src={tutor.profilePicture}
+                    alt={`${tutor.name} image`}
+                    className="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
+                  />
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
+                  {tutor.name}
+                </h4>
+                <span className="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
+                  {tutor.subjects}
+                </span>
+                <div className="text-yellow-500 text-center text-lg mt-2">
+                  {"★".repeat(Math.floor(tutor.rating))}
+                  {"☆".repeat(5 - Math.floor(tutor.rating))}
+                </div>
               </div>
-              <h4 class="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
-                Tutor 1 Name
-              </h4>
-              <span class="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
-                Mathematics
-              </span>
-              <p class="text-center text-sm mt-2 text-gray-600">
-                "Helping students excel in mathematics ."
-              </p>
-              <div class="text-yellow-500 text-center text-lg mt-2">
-                {"★".repeat(5)}
-                {"☆".repeat(0)}
-              </div>
-            </div>
-
-            {/* <!-- Tutor 2 --> */}
-            <div class="block group md:col-span-2 lg:col-span-1">
-              <div class="relative mb-6">
-                <img
-                  src="	https://pagedone.io/asset/uploads/1696238425.png"
-                  alt="Yasmine image"
-                  class="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
-                />
-              </div>
-              <h4 class="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
-                Tutor 2 Name
-              </h4>
-              <span class="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
-                Physics
-              </span>
-              <p class="text-center text-sm mt-2 text-gray-600">
-                "Expert in simplifying complex physics concepts."
-              </p>
-              <div class="text-yellow-500 text-center text-lg mt-2">
-                {"★".repeat(4)}
-                {"☆".repeat(1)}
-              </div>
-            </div>
-
-            {/* <!-- Tutor 3 --> */}
-            <div class="group group md:col-span-2 lg:col-span-1">
-              <div class="relative mb-6">
-                <img
-                  src="https://pagedone.io/asset/uploads/1696238396.png"
-                  alt="Patricia image"
-                  class="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
-                />
-              </div>
-              <h4 class="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
-                Tutor 3 Name
-              </h4>
-              <span class="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
-                Chemistry
-              </span>
-              <p class="text-center text-sm mt-2 text-gray-600">
-                "Passionate about making chemistry fun and accessible."
-              </p>
-              <div class="text-yellow-500 text-center text-lg mt-2">
-                {"★".repeat(5)}
-                {"☆".repeat(0)}
-              </div>
-            </div>
-
-            {/* <!-- Tutor 4 --> */}
-            <div class="block group md:col-span-2 lg:col-span-1 md:col-start-2 lg:col-start-4">
-              <div class="relative mb-6">
-                <img
-                  src="	https://pagedone.io/asset/uploads/1696238411.png"
-                  alt="Jerom image"
-                  class="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
-                />
-              </div>
-              <h4 class="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
-                Tutor 4 Name
-              </h4>
-              <span class="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
-                English
-              </span>
-              <p class="text-center text-sm mt-2 text-gray-600">
-                "Improving communication skills with engaging lessons."
-              </p>
-              <div class="text-yellow-500 text-center text-lg mt-2">
-                {"★".repeat(4)}
-                {"☆".repeat(1)}
-              </div>
-            </div>
-
-            {/* <!-- Tutor 5 --> */}
-            <div class="block group min-[500px]:col-span-2 mx-auto md:col-span-2 lg:col-span-1">
-              <div class="relative mb-6">
-                <img
-                  src="https://pagedone.io/asset/uploads/1696238446.png"
-                  alt="Martin image"
-                  class="w-40 h-40 rounded-full mx-auto transition-all duration-500 object-cover border border-solid border-transparent group-hover:border-indigo-600"
-                />
-              </div>
-              <h4 class="text-xl font-semibold text-gray-900 mb-2 capitalize text-center transition-all duration-500 group-hover:text-indigo-600">
-                Tutor 5 Name
-              </h4>
-              <span class="text-gray-500 text-center block transition-all duration-500 group-hover:text-gray-900">
-                Biology
-              </span>
-              <p class="text-center text-sm mt-2 text-gray-600">
-                "Bringing biology to life with interactive teaching methods."
-              </p>
-              <div class="text-yellow-500 text-center text-lg mt-2">
-                {"★".repeat(5)}
-                {"☆".repeat(0)}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -232,7 +153,9 @@ export default function Home() {
         <p className="text-lg mb-4 dark:text-gray-300">
           Help students achieve their academic goals...
         </p>
-        <GradientButton>Register as a Tutor</GradientButton>
+        <Link to="/tutor/sign-up">
+          <GradientButton>Register as a Tutor</GradientButton>
+        </Link>
       </div>
     </div>
   );

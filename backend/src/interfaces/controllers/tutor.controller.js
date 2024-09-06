@@ -120,41 +120,40 @@ export const saveAvailability = async (req, res) => {
       const startDate = new Date(start);
       const endDate = new Date(end);
 
-      const startHour = startDate.getHours();
-      const endHour = endDate.getHours();
+      // Format the start and end times with both hours and minutes
+      const startTime = startDate.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
+      const endTime = endDate.toTimeString().split(' ')[0].substring(0, 5);
       const date = startDate.toISOString().split('T')[0]; // Extract the date part
 
-      for (let hour = startHour; hour < endHour; hour++) {
-        const startTime = `${hour.toString().padStart(2, '0')}:00`;
-        const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+      // Check for conflicting booked slots
+      const conflictingSlot = await Slot.findOne({
+        tutorId,
+        status: 'booked',
+        date,
+        $or: [
+          {
+            $and: [
+              { startTime: { $lt: endTime } },
+              { endTime: { $gt: startTime } }
+            ]
+          }
+        ]
+      });
 
-        // Check for conflicting booked slots
-        const conflictingSlot = await Slot.findOne({
-          tutorId,
-          status: 'booked',
-          date,
-          $or: [
-            {
-              $and: [
-                { startTime: { $lt: endTime } },
-                { endTime: { $gt: startTime } }
-              ]
-            }
-          ]
-        });
-
-        if (conflictingSlot) {
-          return res.status(403).json({ success: false, message: `Conflicting booked slot found on ${date} from ${conflictingSlot.startTime} to ${conflictingSlot.endTime}` });
-        }
-
-        newSlots.push({
-          tutorId,
-          date,
-          startTime,
-          endTime,
-          status: 'available',
+      if (conflictingSlot) {
+        return res.status(403).json({
+          success: false,
+          message: `Conflicting booked slot found on ${date} from ${conflictingSlot.startTime} to ${conflictingSlot.endTime}`
         });
       }
+
+      newSlots.push({
+        tutorId,
+        date,
+        startTime,
+        endTime,
+        status: 'available',
+      });
     }
 
     // Save new slots to the database
@@ -166,6 +165,7 @@ export const saveAvailability = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error', error });
   }
 };
+
 
 export const fetchBookedSlots = async (req, res) => {
   try {

@@ -109,7 +109,7 @@ const ScheduleAvailability = () => {
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Set Schedule Availability</h2>
             <div className="mb-4">
               <p className="text-sm mb-2 text-red-500 dark:text-gray-300">
-                Click on the calendar to add your available slots. Note: Your availability will be divided into hourly slots for each session. You can also schedule single slots.
+                Click on the calendar to add your available slots. Note: You can only add 1 hour slots 
               </p>
             </div>
 

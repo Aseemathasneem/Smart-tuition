@@ -119,8 +119,8 @@ const BookedSlots = () => {
                 <Table.Row key={slot._id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                   <Table.Cell>{formatDate(slot.slotId.date)}</Table.Cell>
                   <Table.Cell>{slot.studentId.name}</Table.Cell>
-                  <Table.Cell>{slot.slotId.startTime}</Table.Cell>
-                  <Table.Cell>{slot.slotId.endTime}</Table.Cell>
+                  <Table.Cell>{formatTime(slot.slotId.startTime)}</Table.Cell>
+                  <Table.Cell>{formatTime(slot.slotId.endTime)}</Table.Cell>
                   <Table.Cell>
                     <div className="flex space-x-2">
                       <Button
@@ -211,4 +211,12 @@ const formatDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
+};
+
+const formatTime = (timeString) => {
+  const [hours, minutes] = timeString.split(":");
+  const hour = parseInt(hours, 10);
+  const isPM = hour >= 12;
+  const formattedHour = hour % 12 || 12;
+  return `${formattedHour}:${minutes} ${isPM ? "PM" : "AM"}`;
 };

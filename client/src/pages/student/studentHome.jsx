@@ -1,19 +1,18 @@
-import React , { useEffect, useState } from "react";
-import { apiCall } from '../../api/apiCalls';
-import endpoints from '../../api/endpoints';
-import GradientButton from "../../components/GradientButton"; // Adjust the import path as needed
-
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { apiCall } from "../../api/apiCalls";
+import endpoints from "../../api/endpoints";
+import GradientButton from "../../components/GradientButton";
 export default function Home() {
-
   const [tutors, setTutors] = useState([]);
 
   useEffect(() => {
     const fetchTopTutors = async () => {
       try {
-        const response = await apiCall('get', endpoints.GET_TOP_TUTORS);
+        const response = await apiCall("get", endpoints.GET_TOP_TUTORS);
         setTutors(response.data);
       } catch (error) {
-        console.error('Failed to fetch top tutors:', error);
+        console.error("Failed to fetch top tutors:", error);
       }
     };
 
@@ -117,7 +116,10 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 min-[500px]:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-8 max-w-xl mx-auto md:max-w-3xl lg:max-w-full">
             {tutors.map((tutor) => (
-              <div key={tutor._id} className="block group md:col-span-2 lg:col-span-1">
+              <div
+                key={tutor._id}
+                className="block group md:col-span-2 lg:col-span-1"
+              >
                 <div className="relative mb-6">
                   <img
                     src={tutor.profilePicture}
@@ -151,7 +153,9 @@ export default function Home() {
         <p className="text-lg mb-4 dark:text-gray-300">
           Help students achieve their academic goals...
         </p>
-        <GradientButton>Register as a Tutor</GradientButton>
+        <Link to="/tutor/sign-up">
+          <GradientButton>Register as a Tutor</GradientButton>
+        </Link>
       </div>
     </div>
   );

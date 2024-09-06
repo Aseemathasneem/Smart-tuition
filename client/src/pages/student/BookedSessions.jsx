@@ -63,8 +63,8 @@ const StudentBookedSessions = () => {
               <Table.Row key={slot.sessionId} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                 <Table.Cell>{formatDate(slot.date)}</Table.Cell>
                 <Table.Cell>{slot.tutorId.name}</Table.Cell>
-                <Table.Cell>{slot.startTime}</Table.Cell>
-                <Table.Cell>{slot.endTime}</Table.Cell>
+                <Table.Cell>{formatTime(slot.startTime)}</Table.Cell>
+                <Table.Cell>{formatTime(slot.endTime)}</Table.Cell>
                 <Table.Cell>
                   <Button
                     gradientDuoTone="greenToBlue"
@@ -92,4 +92,13 @@ const formatDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
+};
+
+// Utility function to format time (12-hour AM/PM)
+const formatTime = (timeString) => {
+  const [hours, minutes] = timeString.split(":");
+  const hour = parseInt(hours, 10);
+  const isPM = hour >= 12;
+  const formattedHour = hour % 12 || 12;
+  return `${formattedHour}:${minutes} ${isPM ? "PM" : "AM"}`;
 };
