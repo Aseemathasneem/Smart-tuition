@@ -13,7 +13,7 @@ const TutorProfile = () => {
     const fetchTutorProfile = async () => {
       try {
         const response = await apiCall('get', endpoints.TUTOR_GET_PROFILE);
-        setTutor(response.data); // Assuming data contains the tutor profile object
+        setTutor(response.data); 
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tutor profile:', error);

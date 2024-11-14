@@ -6,7 +6,7 @@ const initializeSocket = (server) => {
   // Configure Socket.io server with CORS settings
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173", // Allow requests from your frontend origin
+      origin: process.env.BASE_URL, // Allow requests from your frontend origin
       methods: ["GET", "POST"],         // Allowed methods
       credentials: true,                // Allow credentials (cookies, headers)
     },
