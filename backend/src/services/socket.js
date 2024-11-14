@@ -3,7 +3,14 @@ import { Server } from 'socket.io';
 let io;
 
 const initializeSocket = (server) => {
-  io = new Server(server); 
+  // Configure Socket.io server with CORS settings
+  io = new Server(server, {
+    cors: {
+      origin: "http://localhost:5173", // Allow requests from your frontend origin
+      methods: ["GET", "POST"],         // Allowed methods
+      credentials: true,                // Allow credentials (cookies, headers)
+    },
+  });
 
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
@@ -19,8 +26,6 @@ const initializeSocket = (server) => {
       console.log(`User ${userId} left room: ${userId}`);
       socket.leave(userId);
     });
-
-   
 
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);

@@ -125,25 +125,18 @@ export const saveAvailability = async (req, res) => {
       const endTime = endDate.toTimeString().split(' ')[0].substring(0, 5);
       const date = startDate.toISOString().split('T')[0]; // Extract the date part
 
-      // Check for conflicting booked slots
+      // Check for any slot with the same date, start time, and end time
       const conflictingSlot = await Slot.findOne({
         tutorId,
-        status: 'booked',
         date,
-        $or: [
-          {
-            $and: [
-              { startTime: { $lt: endTime } },
-              { endTime: { $gt: startTime } }
-            ]
-          }
-        ]
+        startTime,
+        endTime,
       });
 
       if (conflictingSlot) {
         return res.status(403).json({
           success: false,
-          message: `Conflicting booked slot found on ${date} from ${conflictingSlot.startTime} to ${conflictingSlot.endTime}`
+          message: `Conflicting slot found on ${date} from ${startTime} to ${endTime}.`,
         });
       }
 

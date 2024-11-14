@@ -68,7 +68,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="w-full mt-8 bg-transparent border rounded-md lg:max-w-sm dark:border-gray-700 focus-within:border-blue-400 focus-within:ring focus-within:ring-blue-300 dark:focus-within:border-blue-400 focus-within:ring-opacity-40">
+            {/* <div className="w-full mt-8 bg-transparent border rounded-md lg:max-w-sm dark:border-gray-700 focus-within:border-blue-400 focus-within:ring focus-within:ring-blue-300 dark:focus-within:border-blue-400 focus-within:ring-opacity-40">
               <form className="flex flex-col lg:flex-row">
                 <input
                   type="email"
@@ -79,7 +79,7 @@ export default function Home() {
                   Join Us
                 </GradientButton>
               </form>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center justify-center w-full h-96 lg:w-1/2">

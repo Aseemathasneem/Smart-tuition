@@ -38,11 +38,11 @@ export default function Header() {
         <Navbar.Link active={path === '/'} as={'div'}>
           <Link to='/'>Home</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === '/student/profile'} as={'div'}>
-          <Link to='/student/profile'>Student</Link>
+        <Navbar.Link active={path === '/student/sign-in'} as={'div'}>
+          <Link to='/student/sign-in'>Student</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === '/tutor/profile'} as={'div'}>
-          <Link to='/tutor/profile'>Tutors</Link>
+        <Navbar.Link active={path === '/tutor/sign-in'} as={'div'}>
+          <Link to='/tutor/sign-in'>Tutors</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>

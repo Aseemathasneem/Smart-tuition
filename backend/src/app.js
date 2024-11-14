@@ -25,7 +25,7 @@ const server = createServer(app);
 initializeSocket(server);
 
 const corsOptions = {
-  origin: ['https://www.smarttuition.solutions'], // Allow your production and development URLs
+  origin: ['http://localhost:5173'], // Allow your production and development URLs
   credentials: true, // Allow cookies and auth headers
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 };

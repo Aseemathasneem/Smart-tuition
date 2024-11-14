@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an instance of axios without setting a default baseURL
 const axiosInstance = axios.create({
  
-  baseURL: 'https://smarttuition.solutions/api',
+  baseURL: import.meta.env.VITE_API_URL + '/api',
   withCredentials: true,
 });
 

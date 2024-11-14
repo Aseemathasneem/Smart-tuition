@@ -43,32 +43,7 @@ const studentSchema = new mongoose.Schema({
     enum: ['student'],
     default: 'student'
   },
-  bookedSlots: [
-    {
-      sessionId: {
-        type: String,
-        required: true,
-      },
-      tutorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tutor',
-        required: true,
-      },
-      date: {
-        type: Date,
-        required: true,
-      },
-      startTime: {
-        type: String,
-        required: true,
-      },
-      endTime: {
-        type: String,
-        required: true,
-      },
-      status: { type: String, default: 'pending' },
-    }
-  ],
+ 
 }, { timestamps: true });
 
 // Method to hash OTP before saving

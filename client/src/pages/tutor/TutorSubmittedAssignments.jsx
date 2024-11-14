@@ -27,6 +27,7 @@ const TutorSubmittedAssignments = () => {
 
   const openFileModal = (file) => {
     setFileUrl(file);
+    console.log(`File URL: ${import.meta.env.VITE_API_URL}/${file}`);
     setIsFileModalOpen(true);
   };
 
@@ -110,6 +111,7 @@ const TutorSubmittedAssignments = () => {
         <Modal.Body>
           <iframe
             src={`${import.meta.env.VITE_API_URL}/${fileUrl}`}
+            
             frameBorder="0"
             width="100%"
             height="500px"

@@ -97,7 +97,10 @@ const ScheduleAvailability = () => {
       showToast('Availability saved successfully', 'success');
     } catch (error) {
       console.error('Error saving availability:', error);
-      showToast('Failed to save availability', 'error');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to save availability';
+
+    // Show error message in the toast
+    showToast(`Failed to save availability: ${errorMessage}`, 'error');
     }
   };
 

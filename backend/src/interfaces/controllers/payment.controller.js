@@ -29,8 +29,9 @@ export const createCheckoutSession = async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://www.smarttuition.solutions/student/payment-success?session_id={CHECKOUT_SESSION_ID}', 
-      cancel_url: 'https://www.smarttuition.solutions/student/payment-cancel',
+      success_url: `${process.env.BASE_URL}/student/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+       cancel_url: `${process.env.BASE_URL}/student/payment-cancel`,
+
       metadata: {
         tutorId: sessionDetails.tutorId,
         studentId: sessionDetails.studentId,
